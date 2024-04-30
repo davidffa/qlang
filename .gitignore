@@ -1,0 +1,10 @@
+.DS_Store
+*.class
+
+# Antlr4 stuff
+*.tokens
+*.interp
+*BaseListener.java
+*Listener.java
+*Lexer.java
+*Parser.java
