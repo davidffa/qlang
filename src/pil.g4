@@ -1,7 +1,7 @@
 grammar pil;
 
 program:
-    (stat ';')* EOF
+    (stat ';')* stat? EOF
     ;
 
 stat:
@@ -17,11 +17,11 @@ writeStat:
     ;
     
 condStat:
-    'if' expr 'then' stat ('elseif' stat)* ('else' stat)? 'end'
+    'if' expr 'then' stat* ('elseif' expr 'then' stat*)* ('else' stat*)? 'end'
     ;
 
 loopStat:
-    'loop' type=('until'|'while') expr 'do' stat 'end'
+    'loop' type=('until'|'while') expr 'do' stat* 'end'
     ;
 
 assignment:
@@ -32,8 +32,8 @@ expr:
       op=('+'|'-') expr                             #ExprUnary
     | expr op=('*'|':'|'%') expr                    #ExprBinary
     | expr op=('+'|'-') expr                        #ExprBinary
-    | expr op=('='|'/='|'<='|'>=' | '<' | '>') expr #ExprRel
     | expr ',' expr                                 #ExprConcat // TODO: A prioridade desta operação está correta?
+    | expr op=('='|'/='|'<='|'>=' | '<' | '>') expr #ExprRel
     | 'not' expr                                    #ExprNot
     | expr op=('or'|'and'|'xor'|'and then'
            |'or else'|'implies') expr               #ExprBoolOp
