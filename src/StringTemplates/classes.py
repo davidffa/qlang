@@ -9,8 +9,11 @@ class FractionInt :
         self.num = num
         self.den = den
 
+    def __percent__(self):
+        return self.num / self.den * 100
+
     def __str__(self):
-        return str(self.num) + '/' +  str(self.den)
+        return str(self.__percent__()) + "%"
 
     def __add__(self, other):
         return FractionInt(self.num * other.den + other.num * self.den, self.den * other.den)
@@ -25,12 +28,15 @@ class FractionInt :
             return a
         g = gcd(self.num, self.den)
         return FractionInt(self.num // g, self.den // g)
+    
+
 class Result:
 
     def __init__(self, name="User", id=0) :
         self.name = name
         self.id = id
         self.result = 0
+        
 
     def add_result(self, result):
         self.result += result
