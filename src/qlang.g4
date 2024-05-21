@@ -40,7 +40,7 @@ expr:
 
 holeQuestion: 'hole' Identifier 'is' holeQuestionBlock 'end';
 holeQuestionStatement: printStat (hole StringLiteral*)+;
-holeQuestionBlock: holeQuestionStatement (';' (holeQuestionStatement))* ';'?;
+holeQuestionBlock:  (printStat ';')* holeQuestionStatement (';' (holeQuestionStatement|printStat))* ';'?;
 
 openQuestion: 'open' Identifier 'is' printStatBlock 'end';
 
