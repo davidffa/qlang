@@ -78,25 +78,22 @@ Class_str(instance) ::= <<
 
 
 
+InstanciateGroup(varGroup, groupName, childGroups) ::= <<
+<varGroup> = Group("<groupName>", [
+<childGroups; separator=",\n">
+])
+>>
+
+childGroup(name, content) ::= <<
+Group("<name>", <content>)
+>>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+RunQuestion(groupName, question) ::= <<
+q = <groupname>.getChildren(<question>)
+g = q.Answer().Grade()
+result.add_result(g)
+>>
 
 
 
@@ -173,6 +170,11 @@ class Result:
 
     def add_result(self, result: FractionInt):
         self.questionsGrades.append(result)
+    
+    def setName(self,name):
+        self.name=name
+    def getName(self):
+        return self.name
 
     def get_result(self):
         tempScore= FractionInt(0,1)
@@ -190,8 +192,14 @@ class Result:
 RC_add_result(instance, result) ::= <<
 <instance>.add_result(<result>)
 >>
+RC_setName(instance, name) ::= <<
+<instance>.setName(<name>)
+>>
 RC_get_result(instance) ::= <<
 <instance>.get_result()
+>>
+RC_getName(instance) ::= <<
+<instance>.getName()
 >>
 RC_export(instance, file) ::= <<
 <instance>.export_file(<file>)
@@ -445,9 +453,23 @@ class Print():
     def getElements(self):
         return [self.elements]
     def Answer(self):
+        text=""
+        for i in range(len(self.text)):
+            text += self.text[i]
+            if i < len(self.elements) and i >=0:
+                if isinstance(self.elements[i],Hole):
+                    text+="__"
+                elif isinstance(self.elements[i],Choice):
+                    text+="(Choose)"
+                elif isinstance(self.elements[i],Element):
+                    text+=str(self.elements[i].getValue())
+        text+=self.ln
+        print(text)
         for el in self.elements:
             if isinstance(el,Hole):
                 el.Fill()
+            elif isinstance(el,Choice):
+                pass
     def Grade(self)-> FractionInt:
         numberOfCorrectAns=0
         for el in self.elements:
@@ -573,14 +595,12 @@ ChoiceC_getGrade(instance) ::= <<
 ////////////////////Code class
 
 CodeClass() ::= <<
-class Code(Element):
+class Code():
     def __init__(self,pil,elements=[]):
         self.name = name
         self.pil = pil
         self.elements = elements
-        self.file = True if self.pil.includes(".pil") else False
-    def setPIL(self,pil):
-        self.pil = pil
+        self.file = isinstance(self.pil,str) and ".pil" in self.pil
     def getPIL(self):
         return self.pil
     def Fill(self):
@@ -623,9 +643,7 @@ CC_Fill(instance) ::= <<
 CC_getPIL(instance) ::= <<
 <instance>.getPIL()
 >>
-CC_setPIL(instance, pil) ::= <<
-<instance>.setPIL(<pil>)
->>
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
