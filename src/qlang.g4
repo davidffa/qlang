@@ -58,7 +58,7 @@ codeOutputQuestion: 'open' printStatBlock 'end';
 codeStat: 'code' Identifier 'is' StringLiteral+ 'end';
 
 //Import
-importStat: 'uses' 'code' ((Identifier)| 'from' StringLiteral) (gradeRule ';')* (gradeRule)? 'end';
+importStat: 'uses' 'code' ((Identifier)| 'from' StringLiteral) (gradeRule ';')* (gradeRule)? 'end' ';'?;
 //-------
 
 //Choice
