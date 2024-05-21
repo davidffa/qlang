@@ -45,20 +45,19 @@ holeQuestionBlock: holeQuestionStatement (';' (holeQuestionStatement))* ';'?;
 openQuestion: 'open' Identifier 'is' printStatBlock 'end';
 
 codeOpenQuestion:
-	'code-open' Identifier 'is' importStatBlock printStatBlock 'end';
+	'code-open' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) 'end';
 
 codeHoleQuestion:
-	'code-hole' Identifier 'is' (printStatBlock | importStatBlock)+ 'end';
+	'code-hole' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) 'end';
 
 multiChoiceQuestion:
-	'multi-choice' Identifier 'is' importStatBlock printStatBlock choiceStatBlock 'end';
+	'multi-choice' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) choiceStatBlock 'end';
 
 codeOutputQuestion: 'open' printStatBlock 'end';
 
 codeStat: 'code' Identifier 'is' StringLiteral+ 'end';
 
 //Import
-importStatBlock: importStat (';' (importStat))* ';'?;
 importStat: 'uses' 'code' ((Identifier)| 'from' StringLiteral) (gradeRule ';')* (gradeRule)? 'end';
 //-------
 
