@@ -11,6 +11,8 @@ from os import read
 
 class <name>:
 	def main():
+        result = Result()
+
 		<stats(stat)>
 	
 	if __name__ == "__main__":
@@ -74,24 +76,44 @@ Class_str(instance) ::= <<
 <instance>.__str__()
 >>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////Fraction class
 
 FractionClass() ::= <<
-class FractionInt :
+class FractionInt : 
     def __init__(self, num, den):
         self.num = num
         self.den = den
-
     def __percent__(self):
-        return self.num / self.den * 100
-
+        return (self.num / self.den) * 100
     def __str__(self):
         return str(self.__percent__()) + "%"
-
     def __add__(self, other):
         return FractionInt(self.num * other.den + other.num * self.den, self.den * other.den)
-
     def __sub__(self, other):
         return FractionInt(self.num * other.den - other.num * self.den, self.den * other.den)
     def __prod__(self,other):
@@ -103,10 +125,19 @@ class FractionInt :
             return a
         g = gcd(self.num, self.den)
         return FractionInt(self.num // g, self.den // g)
-    def __value__(self):
-        return self.num/self.den
+    def setNum(self,num):
+        self.num=num
+        return self
+    def setDen(self,den):
+        self.den=den
+        return self
 >>
-
+FC_setNum(instance,num) ::= <<
+<instance>.setNum(<num>)
+>>
+FC_setDen(instance,den) ::= <<
+<instance>.setDen(<den>)
+>>
 FC_percent(instance) ::= <<
 <instance>.__percent__()
 >>
@@ -138,11 +169,16 @@ class Result:
         self.name = name
         self.id = id
         self.result = FractionInt(0,1)
+         self.questionsGrades = []
 
     def add_result(self, result: FractionInt):
-        self.result = self.result.__add__(result)
+        self.questionsGrades.append(result)
 
     def get_result(self):
+        tempScore= FractionInt(0,1)
+        for q in self.questionsGrades:
+            tempScore = tempScore.__add__(q)
+        self.result=tempScore.setDen(tempScore.den*len(self.questionsGrades))
         return self.result
 
     def export_file(self, name="result.txt"):
@@ -175,14 +211,14 @@ class Question:
         if not self.autoGrading:
             print("This is a manual grading question:\n Score: (e.g 10/10)")
             info = input()
-            num = info.split('/')[0]
-            den = info.split('/')[1]
+            num = int(info.split('/')[0])
+            den = int(info.split('/')[1])
             score = FractionInt(num,den)
-            self.score=score.__reduce__().value()
+            self.score=score.__reduce__()
             return score
         return self.score
     def Answer(self):
-        self.answer=input(f"Answer the {self.name} question:")
+        self.answer=input(f"Answer the question:")
     def __str__(self):
         return self.name
 >>
@@ -260,7 +296,9 @@ class OpenQuestion(Question):
         self.prints = prints
         self.answer=None
     def Answer(self):
-        self.answer=input(f"Answer the {self.name}")
+        for p in self.prints:
+            p.Answer()
+        self.answer=input(f"Answer here:")
     def __str__(self):
         return '\n'.join([self.questions])
 >>
@@ -276,12 +314,18 @@ OQC_Answer(instance) ::= <<
 
 CodeOpenQuestionClass() ::= <<
 class CodeOpenQuestion(Question):
-    def __init__(self, name,print):
+    def __init__(self,print,code):
         super().__init__(name)
         self.print = print
+         self.autoGrading = True
         self.answer=None
+        self.code = code
     def Answer(self):
-        self.answer=input(f"Answer the {self.name} question:")
+        for p in self.print:
+            p.Answer()
+        self.answer=input(f"Answer the question:")
+    def Grade(self):
+        pass
     def __str__(self):
         return ''.join([self.print.__str__()])
 >>
@@ -504,7 +548,7 @@ HC_isCorrect(instance) ::= <<
 
 ChoiceClass() ::= <<
 class Choice(Element):
-    def __init__(self, validAnswer:str,grade:FractionInt = FractionInt(1,1)):
+    def __init__(self, validAnswer:str,grade:FractionInt = FractionInt(0,1))
         self.validAnswer= validAnswer
         self.grade=grade
     def isCorrect(self,correct):
@@ -530,10 +574,11 @@ ChoiceC_getGrade(instance) ::= <<
 
 CodeClass() ::= <<
 class Code(Element):
-    def __init__(self, name,pil,elements):
+    def __init__(self,pil,elements=[]):
         self.name = name
         self.pil = pil
         self.elements = elements
+        self.file = True if self.pil.includes(".pil") else False
     def setPIL(self,pil):
         self.pil = pil
     def getPIL(self):
@@ -551,11 +596,16 @@ class Code(Element):
         points = points.__prod__(FractionInt(numberOfCorrectAns,1))
         return points
     def execute(self):
-        pilText=""
-        for idx,p in enumerate(self.pil):
-            pilText += p
-            if idx < len(self.elements):
-                pilText += self.elements[idx]
+        if (self.file):
+            with open(self.pil,"r") as file:
+                pilText = file.read()
+            print(pilText)
+        else:
+            #run the code, if the code filled with the
+            for idx,p in enumerate(self.pil):
+                pilText += p
+                if idx < len(self.elements):
+                    pilText += self.elements[idx]
     def __str__(self):
         return self.name
 >>
@@ -575,4 +625,43 @@ CC_getPIL(instance) ::= <<
 >>
 CC_setPIL(instance, pil) ::= <<
 <instance>.setPIL(<pil>)
+>>
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////Group class
+
+GroupClass() ::= <<
+class Group:
+    def __init__(self, name,children):
+        #children is either a list of subGroups or a question
+        self.name = name
+        self.children = children
+    def addChildren(self, child):
+        if isinstance(child,Group):
+            self.children.append(child)
+        elif isinstance(child,Question):
+            self.children= child
+    def getChildren(self,name:str):
+        if isinstance(self.children,Question):
+                return self.children
+        for c in self.children:
+            if isinstance(c,Group) :
+               if c.name == name  and isinstance(c.children,Question):
+                   return c.children
+               elif c.name == name:
+                   return c
+        return None
+    def __str__(self):
+        if isinstance(self.children,Question):
+            return self.name
+        return self.name+"."+self.children.__str__()
+>>
+
+GroupC_addChildren(instance, child) ::= <<
+<instance>.addChildren(<child>)
+>>
+
+GroupC_getChildren(instance, name) ::= <<
+<instance>.getChildren(<name>)
 >>
