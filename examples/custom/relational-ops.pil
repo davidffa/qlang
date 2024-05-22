@@ -1,0 +1,10 @@
+writeln "2 = 2 ", (2 = 2);
+writeln "2 /= 2 ", (2 /= 2);
+writeln "2 < 2 ", (2 < 2);
+writeln "1 < 2 ", (1 < 2);
+writeln "3 > 2 ", (3 > 2);
+writeln "2 >= 2 ", (2 >= 2);
+
+writeln "\"david\" = \"david\" ", ("david" = "david");
+writeln "\"abc\" = 2";
+write "abc" = 2;

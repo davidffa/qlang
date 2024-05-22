@@ -1,0 +1,31 @@
+a := 0;
+
+writeln "while a < 5";
+loop while a < 5 do
+    writeln "Value of a = ", a;
+    a := a + 1
+end;
+
+a := 0;
+writeln "until a = 5";
+
+loop until a = 5 do
+    writeln "Value of a = ", a;
+    a := a + 1
+end;
+
+loop
+    writeln "do while!"
+while 0 /= 0 do
+    writeln "never printed!"
+end;
+
+i := 0;
+
+loop
+    writeln "A block, i = ", i;
+while i < 5 do
+    writeln "B block, i = ", i;
+
+    i := i + 1;
+end

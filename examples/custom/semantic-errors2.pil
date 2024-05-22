@@ -1,0 +1,10 @@
+c := 2;
+
+writeln "variable c = ", c;
+
+writeln "print 2";
+writeln "semantic exception next!!!";
+
+b := a + 2;
+
+writeln b

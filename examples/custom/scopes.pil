@@ -1,0 +1,43 @@
+a := "test";
+
+if a = "test" then
+    writeln "The variable a is test";
+
+    a := "test2";
+
+    if a = "test" then
+        writeln "What? a is still test??";
+    else
+        writeln "a is not test anymore!"
+    end;
+
+    b := 4;
+
+    writeln "Declared variable b in first if scope. b = ", 4;
+end;
+
+
+if a = "test" then
+    writeln "What? a is still test??";
+else
+    writeln "a is not test anymore (outside if scope)!"
+end;
+
+-- must throw error (or turn into error state)
+writeln "Trying to access b outside its scope b = ", b;
+
+writeln "------";
+
+-- scopes in loops
+i := 0;
+
+loop while i < 2 do
+    writeln "[Must throw undeclared id] b = ", b;
+    b := i * 2;
+    writeln "b = ", b;
+    i := i + 1;
+end;
+
+-- must throw error (or turn into error state)
+writeln "Trying to access b outside its scope b = ", b;
+

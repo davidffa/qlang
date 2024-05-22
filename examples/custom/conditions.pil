@@ -1,0 +1,17 @@
+a := 2;
+
+if a = 2 then
+    writeln "a is equal to 2"
+else
+    writeln "a is not equal to 2"
+end;
+
+b := 4;
+
+if a = b then
+    writeln "a is equal to b"
+elseif a < b then
+    writeln "a is less than b"
+else
+    writeln "a is greater than b"
+end;

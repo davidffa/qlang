@@ -1,0 +1,11 @@
+-- PIL code from p2.q
+
+n := integer(read);
+i := 1;
+loop until i = n do
+  if i % 2 = 0 then
+     write i
+  end;
+  i := i + 1
+end
+

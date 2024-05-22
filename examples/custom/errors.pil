@@ -1,0 +1,20 @@
+-- Division by zero error
+writeln 1:0;
+
+e := error;
+
+if e then
+    writeln e;
+end;
+
+e := error;
+
+if e then -- should not enter this
+    writeln e;
+end;
+
+-- invalid conversion error
+writeln integer("abc");
+
+writeln error;
+writeln error;

@@ -1,0 +1,17 @@
+a := 2 = 2 or 3 > 2;
+
+x := 0;
+b := x /= 0 and then 4:x = 2;
+x := 2;
+b2 := x /= 0 and then 4:x = 2;
+
+c := 1 = 2 implies 1 = 1;
+d := 2 = 9 xor 9 = 9;
+e := 9 = 9 xor 9 = 9;
+
+writeln "2 = 2 or 3 > 2 ", a;
+writeln "(x=0) x /= 0 and then 4:x = 2 ", b;
+writeln "(x=2) x /= 0 and then 4:x = 2 ", b2;
+writeln "1 = 2 implies 1 = 1 (false => true) ", c;
+writeln "2 = 9 xor 9 = 9 ", d;
+writeln "9 = 9 xor 9 = 9 ", e;

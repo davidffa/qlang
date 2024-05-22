@@ -10,8 +10,14 @@
 *Lexer.java
 *Parser.java
 
+# Python stuff
+__pycache__/
+venv/
+pilLexer.py
+pilListener.py
+pilParser.py
+pilVisitor.py
 *.o
 *~
 ~*
 *.pyc
-__pycache__/

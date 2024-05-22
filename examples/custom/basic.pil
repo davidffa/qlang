@@ -1,0 +1,7 @@
+writeln "Hello World";
+
+writeln 1 + 1;
+
+writeln "Test ", "Concat ", 3+3;
+
+writeln "Complex math expr must be equal to 12.5: ", 3*4-(-2):4;

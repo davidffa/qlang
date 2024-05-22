@@ -1,0 +1,9 @@
+x := 1 + 2;
+
+writeln "Value of x = ", x;
+
+y := 4 * 8;
+
+writeln "Value of y = ", y;
+
+writeln "x + y = ", x, ' + ', y, ' = ', x + y;
