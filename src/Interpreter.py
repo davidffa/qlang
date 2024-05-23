@@ -25,11 +25,12 @@ class SemanticException(Exception):
 
 
 class Interpreter(pilVisitor):
-    def __init__(self):
+    def __init__(self, input=[]):
         self.symbolTable = SymbolTable()
         self.last_error = None
         self.errored = False
 
+        self.input = input
         # Array of strings containing the results of write(ln) calls
         self.output = []
 
@@ -183,6 +184,9 @@ class Interpreter(pilVisitor):
         raise SemanticException(f"ERROR: Undeclared identifier {identifier}", self.output)
 
     def visitExprRead(self, ctx:pilParser.ExprReadContext):
+        if len(self.input) > 0:
+            return self.input.pop(0)
+
         prompt = ""
 
         if ctx.StringLiteral() is not None:
