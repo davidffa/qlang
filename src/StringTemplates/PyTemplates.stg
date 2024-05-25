@@ -76,7 +76,8 @@ Class_str(instance) ::= <<
 <instance>.__str__()
 >>
 
-
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////Exemplos .py:
 
 InstanciateGroup(varGroup, groupName, childGroups) ::= <<
 <varGroup> = Group("<groupName>", [
@@ -166,31 +167,27 @@ class Result:
         self.name = name
         self.id = id
         self.result = FractionInt(0,1)
-         self.questionsGrades = []
-
-    def add_result(self, result: FractionInt):
-        self.questionsGrades.append(result)
-    
+        self.questionsGrades = []
+        self.question = []
     def setName(self,name):
         self.name=name
     def getName(self):
         return self.name
-
+    def addQuestion(self,question):
+        self.question.append(question)
     def get_result(self):
         tempScore= FractionInt(0,1)
         for q in self.questionsGrades:
             tempScore = tempScore.__add__(q)
         self.result=tempScore.setDen(tempScore.den*len(self.questionsGrades))
         return self.result
-
     def export_file(self, name="result.txt"):
         with open(name, "w") as file:
             file.write("User: "+self.name + ";\nID: " + str(self.id) + ";\n Grade: " + str(self.result) + "\n")
-        file.close()
 >>
 
-RC_add_result(instance, result) ::= <<
-<instance>.add_result(<result>)
+RC_add_Question(instance, question) ::= <<
+<instance>.addQuestion(<question>)
 >>
 RC_setName(instance, name) ::= <<
 <instance>.setName(<name>)
@@ -210,25 +207,24 @@ RC_export(instance, file) ::= <<
 
 QuestionClass() ::= <<
 class Question:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self.autoGrading = False
         self.answer=None
         self.score=FractionInt(0,1)
     def Grade(self):
-        if not self.autoGrading:
-            print("This is a manual grading question:\n Score: (e.g 10/10)")
-            info = input()
-            num = int(info.split('/')[0])
-            den = int(info.split('/')[1])
-            score = FractionInt(num,den)
-            self.score=score.__reduce__()
-            return score
+        # if not self.autoGrading:
+        #     print("This is a manual grading question:\n Score: (e.g 10/10)")
+        #     info = input()
+        #     num = int(info.split('/')[0])
+        #     den = int(info.split('/')[1])
+        #     score = FractionInt(num,den)
+        #     self.score=score.__reduce__()
+        #     return score
         return self.score
     def Answer(self):
         self.answer=input(f"Answer the question:")
     def __str__(self):
-        return self.name
+        return "Esta é uma questão"
 >>
 
 QC_Grade(instance) ::= <<
@@ -272,16 +268,25 @@ GC_addToScore(instance, value) ::= <<
 
 HoleQuestionClass() ::= <<
 class HoleQuestion(Question):
-    def __init__(self, name,print):
-        super().__init__(name)
-        self.prints=print
+    def __init__(self,print):
+        # name is the identifier of the question
+        # print is the text of the question or the subparts of more then one question,
+        super().__init__()
+        self.print=print
         self.autograding = True
-    def answerQuestion(self):
+    def Answer(self):
         for p in self.print:
             p.Answer()
+        return self
     def Grade(self):
         for p in self.print:
-            self.score.__add__(p.Grade())
+            sectionG = p.Grade()
+            if sectionG.num == 0 and self.score.num == 0:
+                self.score.setNum(sectionG.num)
+                self.score.setDen(sectionG.den*self.score.den)
+                continue
+            self.score = self.score.__add__(sectionG)
+        return self.score
     def __str__(self):
         return '___'.join([self.questions])
 >>
@@ -323,17 +328,16 @@ OQC_Answer(instance) ::= <<
 CodeOpenQuestionClass() ::= <<
 class CodeOpenQuestion(Question):
     def __init__(self,print,code):
-        super().__init__(name)
+        super().__init__()
         self.print = print
-         self.autoGrading = True
         self.answer=None
         self.code = code
     def Answer(self):
         for p in self.print:
             p.Answer()
-        self.answer=input(f"Answer the question:")
-    def Grade(self):
-        pass
+        self.code.execute()
+        self.answer=input(f"Answer the question (PIL Code):\n")
+        return self
     def __str__(self):
         return ''.join([self.print.__str__()])
 >>
@@ -348,25 +352,25 @@ COQC_Answer(instance) ::= <<
 
 CodeHoleQuestionClass() ::= <<
 class CodeHoleQuestion(Question):
-    def __init__(self, name,code,rules):
-        super().__init__(name)
+    def __init__(self,print,code,rules=None):
+        super().__init__()
         self.autoGrading = True
+        self.print = print
+        self.grade=FractionInt(0,1)
         self.code = code # this is a code object
         self.rules=rules # if the list of rules is empty does that mean that the question has holes ?
     def Answer(self):
-        print(self.print)
-        if len(self.print.getElements()) != 0 :
-            for el in self.print.getElements():
-                if isinstance(el,Hole):
-                    el.Fill()
+        for p in self.print:
+            p.Answer()
+        # if len(self.code.elements) == 0 and self.rules is not None:
+        #     textCode=[]
+        #     for r in self.rules:
+        #         self.code.getCode().split(r.rule)
+        return self
     def Grade(self):
-        if isinstance(self.code,Code):
-            for rule in self.rules:
-                if self.code.getPIL().includes(rule.getValue()):
-                    self.score = self.score.__add__(rule.getPoints())
-            return self.score
-        else:
-            return self.code.Grade()
+        g = self.code.Grade(self.rules)
+        if isinstance(g, FractionInt) and g.num!=0 and g.den!=1:
+            self.grade=g
     def __str__(self):
         return '___'.join([self.questions])
 >>
@@ -383,26 +387,42 @@ CHQC_Grade(instance) ::= <<
 
 MultipleChoiceQuestionClass() ::= <<
 class MultipleChoiceQuestion(Question):
-    def __init__(self, name,code,print,ops):
-        super().__init__(name)
+    def __init__(self,print,code,ops):super().__init__()
         self.code=code
         self.print=print
         self.options=ops
         self.autograding = True
+        self.answer=None
+        self.correctAnswer=None
+        self.input=[] # this is the input for the code it acts as stdin
+
     def Grade(self):
-        output = self.code.execute()
-        if output == self.answer:
-            self.score = self.score.__add__(self.options.getGrade())
+        if self.correctAnswer is not None and self.answer is not None:
+            for choice in self.options:
+                if choice.Equals(self.answer) :
+                    if self.answer == self.correctAnswer:
+                        return FractionInt(1,1)
+                    else:
+                        return choice.getGrade() if choice.grade != None else 0
+
     def Answer(self):
         for p in self.print:
             p.Answer()
+            for el in p.getElements():
+                if isinstance(el,Element) and not (isinstance(el,Hole) or isinstance(el,Choice)):
+                    self.input.append(el.getValue())
         print("Select one of the following options:\n")
-        for i in self.ops:
-            print(i)
-        self.answer=input()
+        for i ,option in enumerate(self.options):
+            print(f"{i+1}) {option}")
+        pos =-1
+        while(pos < 0 or pos>= len(self.options)):
+            pos = int(input())-1
+        self.answer = self.options[pos].getValue()
+        resultCode= self.code.execute(self.input)
+        self.correctAnswer= resultCode.lstrip().replace("\n"," ")
+        return self
     def __str__(self):
-        return '___'.join([self.questions])
-
+        return "This is a multiple choice question"
 >>
 
 MCQC_Answer(instance) ::= <<
@@ -419,12 +439,13 @@ MCQC_Grade(instance) ::= <<
 
 ComposedQuestionClass() ::= <<
 class ComposedQuestion(Question):
-    def __init__(self,name,questions):
-        super().__init__(name)
+    def __init__(self,questions):
+        super().__init__()
         self.questions=questions
     def Answer(self):
         for q in self.questions:
             q.Answer()
+        return self
     def Grade(self):
         for q in self.questions:
             self.score.__add__(q.Grade())
@@ -451,7 +472,7 @@ class Print():
         self.ln= "\n" if ln else ""
         self.points= FractionInt(0,len(elements))
     def getElements(self):
-        return [self.elements]
+        return self.elements
     def Answer(self):
         text=""
         for i in range(len(self.text)):
@@ -459,8 +480,6 @@ class Print():
             if i < len(self.elements) and i >=0:
                 if isinstance(self.elements[i],Hole):
                     text+="__"
-                elif isinstance(self.elements[i],Choice):
-                    text+="(Choose)"
                 elif isinstance(self.elements[i],Element):
                     text+=str(self.elements[i].getValue())
         text+=self.ln
@@ -474,14 +493,17 @@ class Print():
         numberOfCorrectAns=0
         for el in self.elements:
             if isinstance(el,Hole) and el.isCorrect():
+                self.points.setNum(1)
                 numberOfCorrectAns +=1
         self.points = self.points.__prod__(FractionInt(numberOfCorrectAns,1))
         return self.points
     def __str__(self):
+        #concatenate the text and the sub-elements of the question
         for idx in range(len(self.text)):
             print(self.text[idx]+self.ln)
             if idx < len(self.elements) and idx >=0:
                 print(self.elements)
+
 
 >>
 
@@ -522,9 +544,10 @@ EC_setValue(instance) ::= <<
 
 RuleClass() ::= <<
 class Rule(Element):
-    def __init__(self,rule,grade:FractionInt):
+    def __init__(self,rule,grade,line=None):
         super().__init__(rule)
         self.grade=grade
+        self.line=line
     def getPoints(self):
         return self.grade
     def __str__(self):
@@ -540,21 +563,26 @@ RC_getPoints(instance) ::= <<
 
 HoleClass() ::= <<
 class Hole(Element):
-    def __init__(self,validAnswer):
-        self.validAnswer=validAnswer
+    def __init__(self,validAnswer,id=""):
+        super().__init__(validAnswer)
+        self.id = id
         self.answer=None
+    def getId(self):
+        return self.id
     def isAnswered(self):
         return False if self.answer is None else True
     def Fill(self):
-        self.answer=input("Write your answer here:").trim()
+        self.answer=input("Write your answer here:").strip()
     def isCorrect(self):
-        return self.validAnswer == self.answer
+        return self.getValue() == self.answer
     def __str__(self):
         if self.isAnswered:
             return self.answer
         return "__"
 >>
-
+HC_getId(instance) ::= <<
+<instance>.getId()
+>>
 HC_isAnswered(instance) ::= <<
 <instance>.isAnswered()
 >>
@@ -570,21 +598,21 @@ HC_isCorrect(instance) ::= <<
 
 ChoiceClass() ::= <<
 class Choice(Element):
-    def __init__(self, validAnswer:str,grade:FractionInt = FractionInt(0,1))
-        self.validAnswer= validAnswer
+    def __init__(self, validAnswer:str,grade = None):
+        super().__init__(validAnswer)
         self.grade=grade
-    def isCorrect(self,correct):
-        if self.validAnswer == correct:
+    def Equals(self,correct):
+        if self.getValue() == correct:
             return True
         return False
     def getGrade(self):
         return self.grade
     def __str__(self):
-        return self.validAnswer
+        return self.getValue()
 >>
 
-ChoiceC_isCorrect(instance) ::= <<
-<instance>.isCorrect()
+ChoiceC_Equals(instance, correctAnswer) ::= <<
+<instance>.Equals(<correctAnswer>)
 >>
 ChoiceC_getGrade(instance) ::= <<
 <instance>.getGrade()
@@ -597,51 +625,87 @@ ChoiceC_getGrade(instance) ::= <<
 CodeClass() ::= <<
 class Code():
     def __init__(self,pil,elements=[]):
-        self.name = name
+        # the name is the identifier of the code
+        # the pil is the programming language of the code or parts that are concatenated with the holes for certain types of questions
+        # the elements is a list of objects of type 
         self.pil = pil
         self.elements = elements
         self.file = isinstance(self.pil,str) and ".pil" in self.pil
     def getPIL(self):
         return self.pil
-    def Fill(self):
+    def setElements(self,elements):
+        self.elements=elements
+    def Answer(self):
+        if not self.file and len(self.elements) > 0:
+            for el in self.elements:
+                if isinstance(el,Hole):
+                    el.Fill()
+    def Grade(self,rules=None):
+        sc = FractionInt(0,1);
+        code = self.getCode()
+        if rules is not None and isinstance(rules,[Rule]):
+            for r in rules:
+                sc.setDen(sc.den + r.grade )
+                if isinstance(r.rule,str) and r.rule in code:
+                    sc.setNum(r.grade)
+                elif isinstance(r.rule,Element):
+                    identifier = r.rule 
+                    for el in self.elements:
+                        if isinstance(el,Hole) and identifier == el.id and el.isCorrect():
+                            sc.setNum(sc.num + r.grade)
+            sc.setDen(sc.den-1) if sc.den != 1 else sc # retira-se por causa da questão da indeterminação 0/0
+            return sc
         for el in self.elements:
-            if isinstance(el,Hole):
-                el.Fill()
-    def Grade(self):
-        numberOfCorrectAns=0
-        points=FractionInt(0,len(self.elements))
-        for el in self.elements:
+            sc.setDen(sc.den + 1)
             if isinstance(el,Hole) and el.isCorrect():
-                numberOfCorrectAns +=1
-        points = points.__prod__(FractionInt(numberOfCorrectAns,1))
-        return points
-    def execute(self):
+                sc.setNum(sc.num + 1)
+        sc.setDen(sc.den-1) if sc.den != 1 else sc # retira-se por causa da questão da indeterminação 0/0
+        return sc
+    def getCode(self):
+        pilText=""
         if (self.file):
             with open(self.pil,"r") as file:
                 pilText = file.read()
-            print(pilText)
         else:
-            #run the code, if the code filled with the
             for idx,p in enumerate(self.pil):
                 pilText += p
                 if idx < len(self.elements):
-                    pilText += self.elements[idx]
+                    el = self.elements[idx]
+                    if isinstance(el,Hole) and  not el.isAnswered():
+                        pilText+="__"
+                    elif isinstance(el,Hole):
+                        pilText+=el.answer
+        return pilText
+    def printCode(self):
+        print(self.getCode())
+        return self
+    def execute(self,stdin=[]):
+        PILCodeToRun = InputStream(self.getCode())
+        return ''.join(RunCode(PILCodeToRun,stdin))
     def __str__(self):
-        return self.name
+        return "este é um pedaço de código PIL"
 >>
 
-CC_execute(instance) ::= <<
-<instance>.execute()
+CC_execute(instance, stdin) ::= <<
+<instance>.execute(<stdin>)
 >>
-CC_Grade(instance) ::= <<
-<instance>.Grade()
+CC_printCode(instance) ::= <<
+<instance>.printCode()
 >>
-CC_Fill(instance) ::= <<
-<instance>.Fill()
->>
+CC_getCode(instance) ::= <<
+<instance>.getCode()
 >>
 CC_getPIL(instance) ::= <<
 <instance>.getPIL()
+>>
+CC_Answer(instance) ::= <<
+<instance>.Answer()
+>>
+CC_Grade(instance, rules) ::= <<
+<instance>.Grade(<rules>)
+>>
+CC_setElements(instance, elements) ::= <<
+<instance>.setElements(<elements>)
 >>
 
 
@@ -661,19 +725,19 @@ class Group:
         elif isinstance(child,Question):
             self.children= child
     def getChildren(self,name:str):
-        if isinstance(self.children,Question):
-                return self.children
+        if isinstance(self.children,Question) or isinstance(self.children,Code):
+            return self.children
         for c in self.children:
-            if isinstance(c,Group) :
-               if c.name == name  and isinstance(c.children,Question):
-                   return c.children
-               elif c.name == name:
-                   return c
+            if isinstance(c,Group):
+                # print(c)
+                # print(c.name == name and (isinstance(c.children,Question) or isinstance(c.children,Code)))
+                if c.name == name  and (isinstance(c.children,Question) or isinstance(c.children,Code)):
+                    return c.children
+                elif c.name == name:
+                    return c
         return None
     def __str__(self):
-        if isinstance(self.children,Question):
-            return self.name
-        return self.name+"."+self.children.__str__()
+        return self.name
 >>
 
 GroupC_addChildren(instance, child) ::= <<

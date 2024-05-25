@@ -2,7 +2,6 @@ from os import read
 
 
 
-
 class FractionInt :
 
     def __init__(self, num, den):
@@ -115,6 +114,7 @@ class HoleQuestion(Question):
     def __str__(self):
         return '___'.join([self.questions])
 
+  
 class OpenQuestion(Question):
 
     def __init__(self, name,question):
