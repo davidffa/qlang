@@ -6,6 +6,7 @@ stat:
  	  variableDeclaration
 	| assignment
 	| question
+	| loopStat
 	| printStat
 	| codeinline
 	| composed
@@ -90,6 +91,10 @@ elseifBlock: 'elseif' expr 'then' block;
 printStatBlock: printStat (';' (printStat))* ';'?;
 
 printStat: type = ('print' | 'println') expr;
+
+loopStat:
+    'loop' A=block type=('until'|'while') expr 'do' B=block 'end'
+    ;
 
 variableDeclaration:
 	Identifier ':' type = (
