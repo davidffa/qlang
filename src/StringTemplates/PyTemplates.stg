@@ -19,6 +19,16 @@ class <name>:
 		main()
 >>
 
+exprBinary(value1, op, value2) ::= <<
+<value1><op><value2>
+>>
+
+exprUnary(value1, op) ::= <<
+<op><value1>
+>>
+
+
+
 assign(var,expr) ::= "var <var> = <expr>"
 
 print(expr) ::= "print(<expr>, end='')"
@@ -38,8 +48,8 @@ for <var> in <list>:
     <stats(stat)>
 >>
 
-ifExpr(var1,var2, condition, expr,expr2) ::= <<
-if <var1> <condition> <var2>:
+ifExpr(relacionalExpr, expr, expr2) ::= <<
+if <relacionalExpr>:
 	<expr>
 <if(expr2)>
 <elseExpr(expr2)>
@@ -51,12 +61,24 @@ else:
 	<expr>
 >>
 
-elifExpr(var1,var2, condition1, expr, var3, var4, condition2, expr2, expr3) ::= <<
-<ifExpr(var1,var2,condition1,expr)>
-elif <var3> <condition2> <var4>:
-	<expr2>
-<if(expr3)>
-<elseExpr(expr3)>
+andExpr(expr1, expr2) ::= <<
+(<expr1> and <expr2>)
+>>
+
+orExpr(expr1, expr2) ::= <<
+(<expr1> or <expr2>)
+>>
+
+relacionalExpr(var1, condition, var2) ::=<<
+(<var1> <condition> <var2>)
+>>
+
+elifExpr(relacionalExpr1, expr1, relacionalExpr2, expr2) ::= <<
+<ifExpr(relacionalExpr1)>
+elif <relacionalExpr2>:
+	<expr1>
+<if(expr2)>
+<elseExpr(expr2)>
 <endif>
 >>
 
@@ -75,6 +97,10 @@ with open("<filename>", "w") as f:
 Class_str(instance) ::= <<
 <instance>.__str__()
 >>
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////Exemplos .py:
