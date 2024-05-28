@@ -21,21 +21,29 @@ question:
 	| codeOutputQuestion;
 
 expr:
-	'integer' expr			# ExprConvertInteger
-	| 'text' expr			# ExprConvertText
-	| 'read' StringLiteral	# ExprRead
-	| '|' Identifier		# ExprLabel
-	| expr '|' expr			# ExprPipe
-	| expr expr		    	# ExprConcat
-	| expr ',' expr			# ExprComp
-	| 'execute' expr		# ExprExecute
-	| 'new' Identifier		# ExprNew
-	| expr op=('='|'/='|'<='|'>=' | '<' | '>') expr #ExprRel
-	| '(' expr ')'			# ExprParen
-	| Identifier			# ExprIdentifier
-	| StringLiteral			# ExprString
-	| Fraction				# ExprFrac	
-	| Integer				# ExprInteger			
+   op=('+'|'-') expr                            #ExprUnary
+	| expr '|' expr								#ExprPipe
+    | expr op=('*'|':'|'%') expr                #ExprBinary
+    | expr op=('+'|'-') expr                    #ExprBinary
+    | expr op=('='|'/='|'<='|'>='|'<'|'>') expr #ExprRel
+    | 'not' expr                                #ExprNot
+    | expr 'and' 'then' expr                    #ExprBoolAndThen
+    | expr op='and' expr                        #ExprBoolOp
+    | expr 'or' 'else' expr                     #ExprBoolOrElse
+    | expr op=('xor'|'or') expr                 #ExprBoolOp
+    | expr op='implies' expr                    #ExprBoolOp
+	|type=('integer'|'text') '(' expr')' 		#ExprCast
+	| 'read' StringLiteral						#ExprRead
+	| '|' Identifier							#ExprLabel
+	| expr expr		    						#ExprConcat
+	| expr ',' expr								#ExprComp
+	| 'execute' expr							#ExprExecute
+	| 'new' Identifier							#ExprNew
+	| '(' expr ')'								#ExprParen
+	| Identifier								#ExprIdentifier
+	| StringLiteral								#ExprString
+	| Fraction									#ExprFrac	
+	| Integer									#ExprInteger			
 	;
 
 holeQuestion: 'hole' Identifier 'is' holeQuestionBlock 'end';
