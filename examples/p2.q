@@ -10,14 +10,13 @@ println "Nome: " name ", id: " text(id); # text concatenation!
 code PIL.Example1 is # default is code of PIL type (the only one to be implemented)
 "[
    -- PIL code from here
-   n := integer(read);
-   i := 1;
-   loop until i = n do
-      if i % 2 = 0 then
-         write i
-      end;
-      i := i + 1
-   end
+   n := integer(read "Number: "); -- type conversion: type(expression)
+   write "Number ",n, " is ";
+   if n % 2 = 0 then -- = is the comparison operator (as in math)
+      writeln "even"
+   else
+      writeln "odd"
+   end;
    -- PIL code to here
 ]"
 end;
