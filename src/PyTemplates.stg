@@ -19,6 +19,15 @@ class <name>:
 		main()
 >>
 
+exprParenthesis(expr) ::= <<
+(<expr)
+>>
+
+exprConcat(expr1,expr2) ::= <<
+<expr1> <expr2>
+>>
+
+
 exprBinary(value1, op, value2) ::= <<
 <value1><op><value2>
 >>
@@ -131,10 +140,14 @@ childGroup(name, content) ::= <<
 Group("<name>", <content>)
 >>
 
-
-RunQuestion(groupName, question) ::= <<
+CreateQuestion(groupName, question) ::= <<
 q = <groupname>.getChildren(<question>)
 g = q.Answer().Grade()
+result.add_result(g)
+>>
+
+RunQuestion(question) ::= <<
+g = <question>.Answer().Grade()
 result.add_result(g)
 >>
 

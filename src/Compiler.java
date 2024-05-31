@@ -52,7 +52,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitExprIdentifier(qlangParser.ExprIdentifierContext ctx) {
       ST res = null;
-      return visitChildren(ctx);
+      return ctx.Identifier().getText();
       //return res;
    }
 
@@ -63,14 +63,17 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitExprParen(qlangParser.ExprParenContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("exprParenthesis");
+      st.add("expr", this.visit(ctx.expr()));
+      return st;
       //return res;
    }
 
    @Override public ST visitExprConcat(qlangParser.ExprConcatContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("exprConcat");
+      st.add("expr1", this.visit(ctx.expr()[0]));
+      st.add("expr2", this.visit(ctx.expr()[1]));
+      return st;
       //return res;
    }
 
@@ -99,8 +102,11 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitExprBoolOrElse(qlangParser.ExprBoolOrElseContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("orExpr");
+      st.add("expr1", this.visit(ctx.expr()));
+      st.add("expr1", this.visit(ctx.expr()[0]));
+      st.add("expr2", this.visit(ctx.expr()[1]));
+      return st;
       //return res;
    }
 
@@ -113,8 +119,15 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitExprCast(qlangParser.ExprCastContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      if(ctx.type.getText().equals("integer")){
+         ST st = allTemplates.getInstanceOf("intConvert");
+         st.add("expr", this.visit(ctx.expr()));
+         return st;
+      } else if(ctx.type.getText().equals("text")){
+         ST st = allTemplates.getInstanceOf("stringConvert");
+         st.add("expr", this.visit(ctx.expr()));
+         return st;
+      } 
       //return res;
    }
 
@@ -134,14 +147,15 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitExprExecute(qlangParser.ExprExecuteContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("RunQuestion");
+      st.add("question", this.visit(ctx.expr()));
+      return st;
       //return res;
    }
 
    @Override public ST visitExprNew(qlangParser.ExprNewContext ctx) {
       ST res = null;
-      return visitChildren(ctx);
+      return ctx.Identifier().getText();
       //return res;
    }
 
@@ -348,9 +362,9 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitExport(qlangParser.ExportContext ctx) {
-      ST st = allTemplates.getInstanceOf("writeToFile");
-      st.add("filename", this.visit(ctx.StringLiteral()));
-      st.add("data", this.visit(ctx.Identifier()));
+      ST st = allTemplates.getInstanceOf("RC_export");
+      st.add("file", this.visit(ctx.StringLiteral()));
+      st.add("instance", this.visit(ctx.Identifier()));
       return st;
    }
 }
