@@ -10,21 +10,19 @@ from antlr4 import *
 from Interpreter import Interpreter, SemanticException
 from pilLexer import pilLexer
 from pilParser import pilParser
-
-
-def main(argv):
-    visitor0 = Interpreter()
-    input_stream = FileStream(argv[1])
-    lexer = pilLexer(input_stream)
+def RunCode(stream,stdin=None):
+    visitor0 = Interpreter(stdin)
+    lexer = pilLexer(stream)
     stream = CommonTokenStream(lexer)
     parser = pilParser(stream)
     tree = parser.program()
+    stdout=[]
 
     if parser.getNumberOfSyntaxErrors() == 0:
         try:
             result = visitor0.visit(tree)
             for out in result:
-                print(out, end='')
+                stdout.append(out)
         except SemanticException as e:
             result = e.output
 
@@ -41,7 +39,10 @@ def main(argv):
             print("[PILMain] INTERPRETER ERROR!", file=sys.stderr)
             print(e, file=sys.stderr)
             exit(1)
+        return stdout
 
+def main(argv):
+    RunCode(FileStream(argv[1]))
 
 if __name__ == '__main__':
     main(sys.argv)
