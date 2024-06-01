@@ -215,8 +215,15 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitOpenQuestion(qlangParser.OpenQuestionContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      //incompleto
+      ST st= allTemplates.getInstanceOf("childGroup");
+      String[] parts=ctx.Identifier.getText().split("\\.");
+      for(int i=1;i<parts.length;i++){
+         if (i+1>=parts.length) {
+            st.add("expr", parts[i]);
+         }
+      }
+
       //return res;
    }
 
@@ -312,8 +319,9 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitPrintStatBlock(qlangParser.PrintStatBlockContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("instantiate");
+      st.add("expr", this.visit(ctx.printStat()));
+      st.add("class", "Print");
       //return res;
    }
 
@@ -350,9 +358,11 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitHole(qlangParser.HoleContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("instantiate");
+      st.add("class", this.visit(ctx.Identifier()));
+      st.add("expr", this.visit(ctx.StringLiteral()));
+      return st;
+
    }
 
    @Override public ST visitGradeRule(qlangParser.GradeRuleContext ctx) {

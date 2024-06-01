@@ -140,10 +140,8 @@ childGroup(name, content) ::= <<
 Group("<name>", <content>)
 >>
 
-CreateQuestion(groupName, question) ::= <<
-q = <groupname>.getChildren(<question>)
-g = q.Answer().Grade()
-result.add_result(g)
+CreateQuestion(groupName, question, questionName) ::= <<
+<questionName> = <groupname>.getChildren(<question>)
 >>
 
 RunQuestion(question) ::= <<
