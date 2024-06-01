@@ -310,20 +310,35 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitBlock(qlangParser.BlockContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST[] stats= new ST[ctx.stat().size()];
+      
+      for (var stat : ctx.stat()) {
+         stats.add(this.visit(stat));
+      }
+
+      return stats;
       //return res;
    }
 
    @Override public ST visitCondStat(qlangParser.CondStatContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("ifExpr");
+      st.add("relacionalExpr", this.visit(ctx.expr()));
+      st.add("expr", this.visit(ctx.block()[0]));
+      for (var block : ctx.elseifBlock()) {
+         st.add("elif", this.visit(block));
+      }
+      if(ctx.block().size()>1){
+         st.add("else", this.visit(ctx.block()[1]));
+      }
+      return st;
       //return res;
    }
 
    @Override public ST visitElseifBlock(qlangParser.ElseifBlockContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
+      ST st = allTemplates.getInstanceOf("elifExpr");
+      st.add("relacionalExpr", this.visit(ctx.expr()));
+      st.add("expr", this.visit(ctx.block()));
+      return st;
       //return res;
    }
 

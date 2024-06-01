@@ -64,12 +64,11 @@ for <var> in <list>:
     <stats(stat)>
 >>
 
-ifExpr(relacionalExpr, expr, expr2) ::= <<
+ifExpr(relacionalExpr, expr, elif, else) ::= <<
 if <relacionalExpr>:
 	<expr>
-<if(expr2)>
-<elseExpr(expr2)>
-<endif>
+<elifs(elif)>
+<else>
 >>
 
 elseExpr(expr) ::= <<
@@ -98,13 +97,9 @@ relacionalExpr(var1, condition, var2) ::=<<
 (<var1> <condition> <var2>)
 >>
 
-elifExpr(relacionalExpr1, expr1, relacionalExpr2, expr2) ::= <<
-<ifExpr(relacionalExpr1)>
+elifExpr(relacionalExpr, expr) ::= <<
 elif <relacionalExpr2>:
 	<expr1>
-<if(expr2)>
-<elseExpr(expr2)>
-<endif>
 >>
 
 tryCatch(try_stat, except_stat) ::= <<
