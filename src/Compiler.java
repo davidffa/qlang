@@ -215,16 +215,25 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitOpenQuestion(qlangParser.OpenQuestionContext ctx) {
-      //incompleto
-      ST st= allTemplates.getInstanceOf("childGroup");
+      //a verificar
+      ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier.getText().split("\\.");
+      String content;
       for(int i=1;i<parts.length;i++){
+         if (i+1<parts.length) {
+            content.add("]Group("+parts[i]+", [");
+         }
+         if (i=1) {
+            content.add("Group("+parts[i]+", [");
+         }
          if (i+1>=parts.length) {
-            st.add("expr", parts[i]);
+            content.add("Group("+parts[i]+",["+this.ctx.visit(ctx.PrintStatBlockContext())+"])");
          }
       }
-
-      //return res;
+      st.add("vargroup", parts[0]);
+      st.add("groupName", parts[0]);
+      st.add("childGroups", content);
+      return st;
    }
 
    @Override public ST visitCodeOpenQuestion(qlangParser.CodeOpenQuestionContext ctx) {
