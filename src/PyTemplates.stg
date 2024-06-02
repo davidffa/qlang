@@ -24,7 +24,7 @@ block(stat) ::= <<
 >>
 
 exprParenthesis(expr) ::= <<
-(<expr)
+(<expr>)
 >>
 
 exprConcat(expr1,expr2) ::= <<
