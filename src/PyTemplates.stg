@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////Gerais:
 
-<stats(stat) ::= <<
+stats(stat) ::= <<
 <if(stat)><stat separator="\n"><endif>
 >>
 
@@ -17,6 +17,10 @@ class <name>:
 	
 	if __name__ == "__main__":
 		main()
+>>
+
+block(stat) ::= <<
+<stats(stat)>
 >>
 
 exprParenthesis(expr) ::= <<
@@ -36,20 +40,35 @@ exprUnary(value1, op) ::= <<
 <op><value1>
 >>
 
+labelExpr(expr1) ::= <<
+(|<expr1>)
+>>
+
 pipeExpr(expr1, expr2) ::= <<
 (<expr1> | <expr2>)
+>>
+
+compExpr(expr1, expr2) ::= <<
+(<expr1> , <expr2>)
 >>
 
 notExpr(expr1) ::= <<
 (not <expr1>)
 >>
 
+returnData(expr1) ::= <<
+(<expr1>)
+>>
 
 assign(var,expr) ::= "var <var> = <expr>"
 
 print(expr) ::= "print(<expr>, end='')"
 
 println(expr) ::= "print(<expr>)"
+
+choice(expr1, expr2) ::= <<
+(choice <expr1> <expr2>)
+>>
 
 instantiate(class, expr) ::= "<class>(<expr>)"
 
@@ -117,9 +136,6 @@ with open("<filename>", "w") as f:
 Class_str(instance) ::= <<
 <instance>.__str__()
 >>
-
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////
