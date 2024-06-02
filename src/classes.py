@@ -399,9 +399,7 @@ class Choice(Element):
         super().__init__(validAnswer)
         self.grade=grade
     def Equals(self,correct):
-        if self.getValue() == correct:
-            return True
-        return False
+        return self.getValue() == correct
     def getGrade(self):
         return self.grade
     def __str__(self):
