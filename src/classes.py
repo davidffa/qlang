@@ -383,7 +383,7 @@ class Hole(Element):
     def getId(self):
         return self.id
     def isAnswered(self):
-        return False if self.answer is None else True
+        return self.answer is not None
     def Fill(self):
         self.answer=input("Write your answer here:").strip()
     def isCorrect(self):
