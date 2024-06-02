@@ -10,8 +10,6 @@ class Group:
     def addChildren(self, child):
         if isinstance(self,Group):
             self.children.append(child)
-        else:
-            return
     def getChildrenQuestion(self,questions=set()):
         #questions is a set of Objects of type Questions
         if isinstance(self,Question):
