@@ -126,13 +126,13 @@ Class_str(instance) ::= <<
 /////////////////////////Exemplos .py:
 
 InstanciateGroup(varGroup, groupName, childGroups) ::= <<
-<varGroup> = Group("<groupName>", [
-<childGroups; separator=",\n">
-])
+<varGroup> = Group("<groupName>", [<childGroups; separator=",">])
 >>
 
-childGroup(name, content) ::= <<
-Group("<name>", <content>)
+
+
+childGroup(name, child) ::= <<
+Group("<name>", [<child; separator=",">])
 >>
 
 CreateQuestion(groupName, question, questionName) ::= <<
