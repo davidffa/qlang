@@ -26,15 +26,15 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitQuestion(qlangParser.QuestionContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("stat");
+      st.add("stat", this.visitChildren(ctx));
+      return st;
    }
 
    @Override public ST visitExprFrac(qlangParser.ExprFracContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("returnData");
+      st.add("expr1", this.visit(ctx.Fraction()));
+      return st;
    }
 
    @Override public ST visitExprBoolAndThen(qlangParser.ExprBoolAndThenContext ctx) {
@@ -54,7 +54,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       ST st = allTemplates.getInstanceOf("returnData");
       st.add("expr1", this.visit(ctx.Identifier()));
       return st;
-      //return res;
    }
 
    @Override public ST visitExprRead(qlangParser.ExprReadContext ctx) {
@@ -67,7 +66,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       ST st = allTemplates.getInstanceOf("exprParenthesis");
       st.add("expr", this.visit(ctx.expr()));
       return st;
-      //return res;
    }
 
    @Override public ST visitExprConcat(qlangParser.ExprConcatContext ctx) {
@@ -75,7 +73,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("expr1", this.visit(ctx.expr(0)));
       st.add("expr2", this.visit(ctx.expr(1)));
       return st;
-      //return res;
    }
 
    @Override public ST visitExprString(qlangParser.ExprStringContext ctx) {
@@ -109,7 +106,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("expr1", this.visit(ctx.expr(0)));
       st.add("expr2", this.visit(ctx.expr(1)));
       return st;
-      //return res;
    }
 
    @Override public ST visitExprBinary(qlangParser.ExprBinaryContext ctx) {
@@ -132,7 +128,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       } 
       ST res = null; 
       return res;
-      //return res;
    }
 
    @Override public ST visitExprRel(qlangParser.ExprRelContext ctx) {
@@ -154,7 +149,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       ST st = allTemplates.getInstanceOf("RunQuestion");
       st.add("question", this.visit(ctx.expr()));
       return st;
-      //return res;
    }
 
    @Override public ST visitExprNew(qlangParser.ExprNewContext ctx) {
@@ -419,7 +413,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
          st.add("else", this.visit(ctx.block(1)));
       }
       return st;
-      //return res;
    }
 
    @Override public ST visitElseifBlock(qlangParser.ElseifBlockContext ctx) {
@@ -427,7 +420,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("relacionalExpr", this.visit(ctx.expr()));
       st.add("expr", this.visit(ctx.block()));
       return st;
-      //return res;
    }
 
    @Override public ST visitPrintStatBlock(qlangParser.PrintStatBlockContext ctx) {
