@@ -197,18 +197,23 @@ public class Compiler extends qlangBaseVisitor<ST> {
    @Override public ST visitHoleQuestion(qlangParser.HoleQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.holeQuestionBlock())+"])";
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            fin.add("child", this.visit(ctx.holeQuestionBlock()));
+            childGroups[i-1]=fin;}
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
@@ -228,79 +233,105 @@ public class Compiler extends qlangBaseVisitor<ST> {
       //a verificar
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.printStatBlock())+"])";
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            fin.add("child", this.visit(ctx.printStatBlock()));
+            childGroups[i-1]=fin;}
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
    @Override public ST visitCodeOpenQuestion(qlangParser.CodeOpenQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.printStatBlock())+"])";
-            content += "Group("+parts[i]+",["+this.visit(ctx.importStat())+"])";
-            
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            ST question= allTemplates.getInstanceOf("CodeOpenQuestion");
+            question.add("var1", this.visit(ctx.printStatBlock()));
+            question.add("var2", this.visit(ctx.importStat()));
+            fin.add("child", question);   
+            childGroups[i-1]=fin;
+         }
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
    @Override public ST visitCodeHoleQuestion(qlangParser.CodeHoleQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.printStatBlock())+"])";
-            content += "Group("+parts[i]+",["+this.visit(ctx.importStat())+"])";
-            
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            ST question= allTemplates.getInstanceOf("CodeHoleQuestion");
+            question.add("var1", this.visit(ctx.printStatBlock()));
+            question.add("var2", this.visit(ctx.importStat()));
+            fin.add("child", question);   
+            childGroups[i-1]=fin;
+         }
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
    @Override public ST visitMultiChoiceQuestion(qlangParser.MultiChoiceQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.printStatBlock())+"])";
-            content += "Group("+parts[i]+",["+this.visit(ctx.importStat())+"])";
-            content += "Group("+parts[i]+",["+this.visit(ctx.choiceStatBlock())+"])";            
-            
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            ST question= allTemplates.getInstanceOf("MultiChoiceQuestion");
+            question.add("var1", this.visit(ctx.printStatBlock()));
+            question.add("var2", this.visit(ctx.importStat()));
+            question.add("var3", this.visit(ctx.choiceStatBlock()));
+            fin.add("child", question);   
+            childGroups[i-1]=fin;
+         }
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
@@ -361,18 +392,23 @@ public class Compiler extends qlangBaseVisitor<ST> {
    @Override public ST visitComposed(qlangParser.ComposedContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx.composedBlock())+"])";
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i=parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            fin.add("child", this.visit(ctx.visitComposedBlock()));
+            childGroups[i-1]=fin;}
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
