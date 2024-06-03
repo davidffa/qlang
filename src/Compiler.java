@@ -201,7 +201,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
             fin.add("child", this.visit(ctx.holeQuestionBlock()));
@@ -237,7 +237,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
             fin.add("child", this.visit(ctx.printStatBlock()));
@@ -260,7 +260,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
             ST question= allTemplates.getInstanceOf("CodeOpenQuestion");
@@ -287,7 +287,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
             ST question= allTemplates.getInstanceOf("CodeHoleQuestion");
@@ -314,7 +314,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
             ST question= allTemplates.getInstanceOf("MultiChoiceQuestion");
@@ -396,10 +396,10 @@ public class Compiler extends qlangBaseVisitor<ST> {
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
-         if(i=parts.length-1){
+         if(i==parts.length-1){
             ST fin= allTemplates.getInstanceOf("childGroup");
             fin.add("name", parts[i]);
-            fin.add("child", this.visit(ctx.visitComposedBlock()));
+            fin.add("child", this.visit(ctx.composedBlock()));
             childGroups[i-1]=fin;}
          else{
             ST middle= allTemplates.getInstanceOf("childGroup");
@@ -505,9 +505,13 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitGradeRule(qlangParser.GradeRuleContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("Rule");
+      st.add("expr1", this.visit(ctx.StringLiteral()));
+
+      for (var integer : ctx.Integer()) {
+         st.add("expr2", this.visit(integer));
+      }
+      return st;
    }
 
    @Override public ST visitExport(qlangParser.ExportContext ctx) {
