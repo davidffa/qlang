@@ -96,8 +96,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitExprString(qlangParser.ExprStringContext ctx) {
-        ST st = allTemplates.getInstanceOf("stringConvert");
-        st.add("expr", ctx.StringLiteral().getText());
+        ST st = allTemplates.getInstanceOf("returnData");
+        st.add("expr1", ctx.StringLiteral().getText());
         return st;
     }
 
@@ -237,7 +237,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
             if (i == parts.length - 1) {
                 ST fin = allTemplates.getInstanceOf("childQuestion");
                 fin.add("name", parts[i]);
-                fin.add("child", this.visit(ctx.holeQuestionBlock()));
+                fin.add("child", visit(ctx.holeQuestionBlock()).render());
                 childGroups[i - 1] = fin;
             } else {
                 ST middle = allTemplates.getInstanceOf("childGroup");
@@ -254,11 +254,12 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitHoleQuestionBlock(qlangParser.HoleQuestionBlockContext ctx) {
         ST st = allTemplates.getInstanceOf("HoleQuestion");
         for (qlangParser.PrintStatContext ps : ctx.printStat()) {
-            st.add("print", visit(ps));
+            st.add("print", visit(ps).render());
         }
         for (qlangParser.HoleQuestionStatementContext hs : ctx.holeQuestionStatement()) {
-            st.add("print", visit(hs));
+            st.add("print", visit(hs).render());
         }
+        System.out.println(st.render());
         return st;
     }
 
@@ -266,7 +267,11 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitHoleQuestionStatement(qlangParser.HoleQuestionStatementContext ctx) {
         ST st = allTemplates.getInstanceOf("printObject");
 
-        st.add("printStat", ctx.StringLiteral());
+        st.add("printStat", visit(ctx.printStat()).render());
+        for (var print : ctx.StringLiteral()) {
+            System.out.println(print.getText());
+            st.add("printStat", print.getText());
+        }
 
         for (var hole : ctx.hole()) {
             st.add("hole", visit(hole));

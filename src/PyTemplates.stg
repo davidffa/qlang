@@ -22,7 +22,7 @@ block(stat) ::= <<
 >>
 
 HoleQuestion(print) ::= <<
-HoleQuestion([<if(print)><print separator=","><endif>])
+HoleQuestion([<if(print)><print; separator=","><endif>])
 >>
 
 CodeNormal(text, hole) ::=<<

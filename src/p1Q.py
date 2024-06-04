@@ -12,7 +12,6 @@ def __main__():
     h1 = Hole(":=")
     h2 = Hole(":")
     p = Print(["A atribuição de valor em PIL usa o operador ","e o operador de tipo","."], [h1,h2],True)
-
     group = Group("Question",[Group("q1",HoleQuestion([p]))])
     q = group.getChild("q1")
     q.Answer()
