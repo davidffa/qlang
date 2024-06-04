@@ -10,6 +10,9 @@ public class SymbolTable {
         scopes = new Stack<>();
         // para adicionar um global scope
         enterScope();
+        declare("result.name", Type.TEXT);
+        declare("result.grade", Type.FRACTION);
+        declare("result.grade", Type.TEXT);
     }
 
     public void enterScope() {
