@@ -9,6 +9,10 @@
 *Listener.java
 *Lexer.java
 *Parser.java
+pilBaseVisitor.java
+pilVisitor.java
+qlangBaseVisitor.java
+qlangVisitor.java
 
 # Python stuff
 __pycache__/
