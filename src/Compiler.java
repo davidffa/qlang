@@ -218,15 +218,20 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitHoleQuestionStatement(qlangParser.HoleQuestionStatementContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("holeQuestionStatement");
+      for (var printStat : ctx.printStat()) {
+         st.add("printStat", this.visit(printStat));
+      }
+      for (var hole : ctx.hole()) {
+         st.add("hole", this.visit(hole));
+      }
+      return st;
    }
 
    @Override public ST visitHoleQuestionBlock(qlangParser.HoleQuestionBlockContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("HoleQuestion");
+      st.add("print", this.visit(ctx.holeQuestionStatement()));
+      return st;
    }
 
    @Override public ST visitOpenQuestion(qlangParser.OpenQuestionContext ctx) {
@@ -349,9 +354,14 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitImportStat(qlangParser.ImportStatContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("CodeNormal");
+      st.add("text", this.visit(ctx.StringLiteral()));
+      st.add("text", this.visit(ctx.Identifier()));
+      st.add("text", this.visit(ctx.Integer()));
+      for (var rule : ctx.gradeRule()) {
+         st.add("hole", this.visit(rule));
+      }
+      return st;
    }
 
    @Override public ST visitChoiceStat(qlangParser.ChoiceStatContext ctx) {
@@ -413,9 +423,9 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitComposedStatement(qlangParser.ComposedStatementContext ctx) {
-      ST res = null;
-      return visitChildren(ctx);
-      //return res;
+      ST st = allTemplates.getInstanceOf("returnData");
+      st.add("expr1", this.visit(ctx.visitChildren()));
+      return st;
    }
 
    @Override public ST visitComposedBlock(qlangParser.ComposedBlockContext ctx) {
@@ -469,9 +479,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitPrintStat(qlangParser.PrintStatContext ctx) {
-      ST st = allTemplates.getInstanceOf("instantiate");
-      st.add("expr", this.visit(ctx.expr()));
-      st.add("class", "Print");
+      ST st = allTemplates.getInstanceOf("returnData");
+      st.add("expr1", this.visit(ctx.expr()));
       return st;
    
    }

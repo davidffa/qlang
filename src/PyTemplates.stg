@@ -23,6 +23,20 @@ block(stat) ::= <<
 <stats(stat)>
 >>
 
+HoleQuestion(print) ::= <<
+HoleQuestion([<print>])
+>>
+
+CodeNormal(text, hole) ::=<<
+Code(<text>,[<if(hole)><hole; separator=","><endif>])
+>>
+
+
+
+holeQuestionStatement(printStat, hole) ::= <<
+Print([<if(printStat)><printStat; separator=","><endif>], [<if(hole)><hole; separator=","><endif>],True)
+>>
+
 exprParenthesis(expr) ::= <<
 (<expr>)
 >>
@@ -57,7 +71,7 @@ notExpr(expr1) ::= <<
 >>
 
 returnData(expr1) ::= <<
-(<expr1>)
+<expr1>
 >>
 
 assign(var,expr) ::= "var <var> = <expr>"
