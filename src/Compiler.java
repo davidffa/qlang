@@ -20,13 +20,16 @@ public class Compiler extends qlangBaseVisitor<ST> {
    }
 
    @Override public ST visitStat(qlangParser.StatContext ctx) {
-      ST st = allTemplates.getInstanceOf("stat");
-      st.add("stat", this.visitChildren(ctx));
+      ST st = allTemplates.getInstanceOf("stats");
+      System.out.println(st);
+      ST get =this.visitChildren(ctx);
+      System.out.println(get);
+      st.add("stat", get.render());
       return st;
    }
 
    @Override public ST visitQuestion(qlangParser.QuestionContext ctx) {
-      ST st = allTemplates.getInstanceOf("stat");
+      ST st = allTemplates.getInstanceOf("stats");
       st.add("stat", this.visitChildren(ctx));
       return st;
    }
@@ -77,7 +80,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitExprString(qlangParser.ExprStringContext ctx) {
       ST st = allTemplates.getInstanceOf("stringConvert");
-      st.add("expr", this.visit(ctx));
+      st.add("expr", ctx.StringLiteral().getText());
       return st;
    }
 
@@ -197,7 +200,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
    @Override public ST visitHoleQuestion(qlangParser.HoleQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      st.add("vargroup", parts[0]);
+      st.add("varGroup", parts[0]);
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
@@ -241,30 +244,34 @@ public class Compiler extends qlangBaseVisitor<ST> {
       //a verificar
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      st.add("vargroup", parts[0]);
+      st.add("varGroup", parts[0]);
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
-      for(int i= parts.length-1;i>0;i--){
-         if(i==parts.length-1){
-            ST fin= allTemplates.getInstanceOf("childGroup");
-            fin.add("name", parts[i]);
-            fin.add("child", this.visit(ctx.printStatBlock()));
-            childGroups[i-1]=fin;}
-         else{
-            ST middle= allTemplates.getInstanceOf("childGroup");
-            middle.add("name", parts[i]);
-            middle.add("child", childGroups[i]);
-            childGroups[i-1]=middle;
-         }
-      }
-      st.add("childGroups", childGroups[0]);
+      if(parts.length-1>0){
+      	for(int i= parts.length-1;i>0;i--){
+		 if(i==parts.length-1){
+		    ST fin= allTemplates.getInstanceOf("childGroup");
+		    fin.add("name", parts[i]);
+		    fin.add("child", this.visit(ctx.printStatBlock()));
+		    childGroups[i-1]=fin;}
+		 else{
+		    ST middle= allTemplates.getInstanceOf("childGroup");
+		    middle.add("name", parts[i]);
+		    middle.add("child", childGroups[i]);
+		    childGroups[i-1]=middle;
+		 }
+	      }
+	      st.add("childGroups", childGroups[0]);}
+	else{
+		st.add("childGroups", this.visit(ctx.printStatBlock()));
+	}
       return st;
    }
 
    @Override public ST visitCodeOpenQuestion(qlangParser.CodeOpenQuestionContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      st.add("vargroup", parts[0]);
+      st.add("varGroup", parts[0]);
       st.add("groupName", parts[0]);
       ST [] childGroups = new ST[parts.length-1];
       for(int i= parts.length-1;i>0;i--){
@@ -351,15 +358,19 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitCodeStat(qlangParser.CodeStatContext ctx) {
       ST st = allTemplates.getInstanceOf("instantiate");
-      st.add("expr", this.visit(ctx.Identifier()));
-      st.add("class", ctx.getTokens(0));
+      st.add("expr", ctx.Identifier().getText());
+      st.add("class", ctx.StringLiteral());
       return st;
    }
 
    @Override public ST visitImportStat(qlangParser.ImportStatContext ctx) {
       ST st = allTemplates.getInstanceOf("CodeNormal");
-      st.add("text", this.visit(ctx.StringLiteral()));
-      st.add("text", this.visit(ctx.Identifier()));
+      if( ctx.StringLiteral() != null){
+      	st.add("text", this.visit(ctx.StringLiteral()));
+      }
+      if( ctx.Identifier() != null){
+      	st.add("text", this.visit(ctx.Identifier()));
+      }
       for (var rule : ctx.gradeRule()) {
          st.add("hole", this.visit(rule));
       }
@@ -386,18 +397,34 @@ public class Compiler extends qlangBaseVisitor<ST> {
    @Override public ST visitCodeinline(qlangParser.CodeinlineContext ctx) {
       ST st= allTemplates.getInstanceOf("InstanciateGroup");
       String[] parts=ctx.Identifier().getText().split("\\.");
-      String content = "";
-      for(int i=1;i<parts.length;i++){
-         if (i+1<parts.length) {
-            content += "]Group("+parts[i]+", [";
-         }         
-         if (i+1>=parts.length) {
-            content += "Group("+parts[i]+",["+this.visit(ctx)+"])";
-         }
-      }
       st.add("vargroup", parts[0]);
       st.add("groupName", parts[0]);
-      st.add("childGroups", content);
+      ST [] childGroups = new ST[parts.length-1];
+      for(int i= parts.length-1;i>0;i--){
+         if(i==parts.length-1){
+            ST fin= allTemplates.getInstanceOf("childGroup");
+            fin.add("name", parts[i]);
+            ST question= allTemplates.getInstanceOf("CodeNormal");
+            if( ctx.VerbatimString() != null){
+	      	question.add("text", this.visit(ctx.VerbatimString()));
+	      }
+	      if( ctx.expr() != null){
+	      	question.add("text", this.visit(ctx.expr()));
+	      }
+	      for (var rule : ctx.gradeRule()) {
+		 question.add("hole", this.visit(rule));
+	      } 
+	    fin.add("child", question);
+            childGroups[i-1]=fin;
+         }
+         else{
+            ST middle= allTemplates.getInstanceOf("childGroup");
+            middle.add("name", parts[i]);
+            middle.add("child", childGroups[i]);
+            childGroups[i-1]=middle;
+         }
+      }
+      st.add("childGroups", childGroups[0]);
       return st;
    }
 
@@ -460,8 +487,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
       for (var block : ctx.elseifBlock()) {
          st.add("elif", this.visit(block));
       }
-      if(ctx.block().size()>1){
-         st.add("else", this.visit(ctx.block(1)));
+      if(ctx.block().size()<2){
+         st.add("elseExpr", this.visit(ctx.block(1)));
       }
       return st;
    }
@@ -498,14 +525,14 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitVariableDeclaration(qlangParser.VariableDeclarationContext ctx) {
       ST st = allTemplates.getInstanceOf("instantiate");
-      st.add("expr", this.visit(ctx.Identifier()));
-      st.add("class", ctx.getTokens(0));
+      st.add("expr", ctx.Identifier().getText());
+      st.add("class", ctx.type.getText());
       return st;
    }
 
    @Override public ST visitAssignment(qlangParser.AssignmentContext ctx) {
-      ST st = allTemplates.getInstanceOf("impliesExpr");
-      st.add("var", this.visit(ctx.Identifier()));
+      ST st = allTemplates.getInstanceOf("assign");
+      st.add("var", ctx.Identifier().getText());
       st.add("expr", this.visit(ctx.expr()));
       return st;
    }

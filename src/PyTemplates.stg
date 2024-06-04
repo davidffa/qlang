@@ -33,6 +33,7 @@ Code(<text>,[<if(hole)><hole; separator=","><endif>])
 
 
 
+
 holeQuestionStatement(printStat, hole) ::= <<
 Print([<if(printStat)><printStat; separator=","><endif>], [<if(hole)><hole; separator=","><endif>],True)
 >>
@@ -118,7 +119,7 @@ ifExpr(relacionalExpr, expr, elif, else) ::= <<
 if <relacionalExpr>:
 	<expr>
 <elifs(elif)>
-<elses(else)>
+<elseExpr(expr)>
 >>
 
 elseExpr(expr) ::= <<
