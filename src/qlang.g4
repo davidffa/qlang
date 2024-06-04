@@ -65,8 +65,6 @@ multiChoiceQuestion:
 
 codeOutputQuestion: 'code-output' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) 'end';
 
-codeStat: 'code' Identifier 'is' StringLiteral+ 'end';
-
 //Import
 importStat: 'uses' 'code' ((Identifier)| 'from' StringLiteral) (gradeRule ';')* (gradeRule)? 'end' ';'?;
 //-------

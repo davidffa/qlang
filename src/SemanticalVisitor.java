@@ -231,13 +231,6 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
     }
 
     @Override
-    public Type visitCodeStat(qlangParser.CodeStatContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.CODE);
-        visitChildren(ctx);
-        return Type.CODE;
-    }
-
-    @Override
     public Type visitImportStat(qlangParser.ImportStatContext ctx) {
         visitChildren(ctx);
         return Type.CODE;
@@ -255,6 +248,7 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitCodeinline(qlangParser.CodeinlineContext ctx) {
+        symbolTable.declare(ctx.Identifier().getText(), Type.CODE);
         visitChildren(ctx);
         return Type.CODE;
     }
