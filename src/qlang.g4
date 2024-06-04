@@ -6,6 +6,7 @@ stat:
  	  variableDeclaration
 	| assignment
 	| question
+    | condStat
 	| loopStat
 	| printStat
 	| codeinline
@@ -62,7 +63,7 @@ codeHoleQuestion:
 multiChoiceQuestion:
 	'multi-choice' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) choiceStatBlock 'end';
 
-codeOutputQuestion: 'open' printStatBlock 'end';
+codeOutputQuestion: 'code-output' Identifier 'is' ((printStatBlock importStat)|(importStat printStatBlock)) 'end';
 
 codeStat: 'code' Identifier 'is' StringLiteral+ 'end';
 

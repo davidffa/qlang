@@ -1,0 +1,3 @@
+public enum Type {
+    TEXT, INTEGER, QUESTION, FRACTION, CODE, BOOLEAN;
+}
