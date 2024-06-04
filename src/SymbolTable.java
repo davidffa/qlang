@@ -12,7 +12,7 @@ public class SymbolTable {
         enterScope();
         declare("result.name", Type.TEXT);
         declare("result.grade", Type.FRACTION);
-        declare("result.grade", Type.TEXT);
+        declare("result.id", Type.TEXT);
     }
 
     public void enterScope() {
