@@ -77,19 +77,20 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
     }
 
     @Override
-    public Type visitExprComp(qlangParser.ExprCompContext ctx) {
-        visit(ctx.expr(0));
-        visit(ctx.expr(1));
-        return null;
+    public Type visitExprPipe(qlangParser.ExprPipeContext ctx) {
+        Type lhs = visit(ctx.expr());
+
+        if (lhs != Type.TEXT)
+            throw new SemanticException("Invalid pipe arguments");
+        return Type.TEXT;
     }
 
     @Override
-    public Type visitExprPipe(qlangParser.ExprPipeContext ctx) {
+    public Type visitExprExecuteWithPipe(qlangParser.ExprExecuteWithPipeContext ctx) {
         Type lhs = visit(ctx.expr(0));
-        Type rhs = visit(ctx.expr(1));
+        if (lhs != Type.TEXT)
+            throw new SemanticException("Invalid execute with pipe arguments");
 
-        if (lhs != Type.TEXT || rhs != Type.CODE) 
-            throw new SemanticException("Invalid pipe arguments");
         return Type.TEXT;
     }
 
@@ -149,12 +150,23 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitExprExecute(qlangParser.ExprExecuteContext ctx) {
-        Type rhs = visit(ctx.expr());
+        if (ctx.expr().size() > 1) {
+            Type grade = visit(ctx.expr(0));
+
+            if (grade != Type.FRACTION && grade != Type.INTEGER) {
+                throw new SemanticException("Invalid execute grade");
+            }
+        }
+
+        Type rhs = visit(ctx.expr().getLast());
 
         if (rhs == Type.QUESTION)
             return Type.FRACTION;
-        else if (rhs == Type.CODE)
+        else if (rhs == Type.CODE) {
+            if (ctx.expr().size() > 1)
+                throw new SemanticException("Cannot put a grade in code execution!");
             return Type.TEXT;
+        }
 
         throw new SemanticException("Invalid operand in execute");
     }
@@ -182,7 +194,7 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitHoleQuestion(qlangParser.HoleQuestionContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         visitChildren(ctx);
         return Type.QUESTION;
     }
@@ -203,25 +215,25 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitOpenQuestion(qlangParser.OpenQuestionContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
     @Override
     public Type visitCodeOpenQuestion(qlangParser.CodeOpenQuestionContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
     @Override
     public Type visitCodeHoleQuestion(qlangParser.CodeHoleQuestionContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
     @Override
     public Type visitMultiChoiceQuestion(qlangParser.MultiChoiceQuestionContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
@@ -255,7 +267,7 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitComposed(qlangParser.ComposedContext ctx) {
-        symbolTable.declare(ctx.Identifier().getText(), Type.QUESTION);
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
@@ -266,7 +278,11 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitComposedBlock(qlangParser.ComposedBlockContext ctx) {
-        return visitChildren(ctx);
+        symbolTable.enterScope();
+        visitChildren(ctx);
+        symbolTable.exitScope();
+
+        return null;
     }
 
     @Override
@@ -311,8 +327,8 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
     public Type visitPrintStat(qlangParser.PrintStatContext ctx) {
         Type type = visit(ctx.expr());
 
-        if (type == Type.CODE || type == Type.QUESTION)
-            throw new SemanticException("Cannot print code or question");
+        if (type == Type.QUESTION)
+            throw new SemanticException("Cannot print question. Maybe you meant to execute it.");
 
         return null;
     }

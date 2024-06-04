@@ -33,6 +33,25 @@ public class SymbolTable {
         currentScope.put(name, type);
     }
 
+    public void declareQuestion(String name) {
+        String[] components = name.split("\\.");
+        String questionName = "";
+
+        for (int i = 0; i < components.length; ++i) {
+            questionName += components[i];
+            
+            try {
+                declare(questionName, Type.QUESTION);
+            } catch (SemanticException ignored) {
+
+            }
+
+            if (i != components.length - 1) {
+                questionName += ".";
+            }
+        }
+    }
+
     public Type lookup(String name) {
         for (int i = scopes.size() - 1; i >= 0; i--) {
             var scope = scopes.get(i);

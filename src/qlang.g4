@@ -24,7 +24,7 @@ question:
 
 expr:
    op=('+'|'-') expr                            #ExprUnary
-	| expr '|' expr								#ExprPipe
+	| expr '|' Identifier						#ExprPipe
     | expr op=('*'|':'|'%') expr                #ExprBinary
     | expr op=('+'|'-') expr                    #ExprBinary
     | expr op=('='|'/='|'<='|'>='|'<'|'>') expr #ExprRel
@@ -38,8 +38,8 @@ expr:
 	| 'read' StringLiteral						#ExprRead
 	| '|' Identifier							#ExprLabel
 	| expr expr		    						#ExprConcat
-	| expr ',' expr								#ExprComp
-	| 'execute' expr							#ExprExecute
+	| expr '|' 'execute' (expr ',')? expr		#ExprExecuteWithPipe
+	| 'execute' (expr ',')? expr				#ExprExecute
 	| 'new' Identifier							#ExprNew
 	| '(' expr ')'								#ExprParen
 	| Identifier								#ExprIdentifier

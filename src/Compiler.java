@@ -98,20 +98,26 @@ public class Compiler extends qlangBaseVisitor<ST> {
         return st;
     }
 
-    @Override
-    public ST visitExprComp(qlangParser.ExprCompContext ctx) {
-        ST st = allTemplates.getInstanceOf("compExpr");
-        st.add("expr1", this.visit(ctx.expr(0)));
-        st.add("expr2", this.visit(ctx.expr(1)));
-        return st;
-    }
+    // @Override
+    // public ST visitExprComp(qlangParser.ExprCompContext ctx) {
+    // ST st = allTemplates.getInstanceOf("compExpr");
+    // st.add("expr1", this.visit(ctx.expr(0)));
+    // st.add("expr2", this.visit(ctx.expr(1)));
+    // return st;
+    // }
 
     @Override
     public ST visitExprPipe(qlangParser.ExprPipeContext ctx) {
         ST st = allTemplates.getInstanceOf("pipeExpr");
-        st.add("expr1", this.visit(ctx.expr(0)));
-        st.add("expr2", this.visit(ctx.expr(1)));
+        // st.add("expr1", this.visit(ctx.expr(0)));
+        // st.add("expr2", this.visit(ctx.expr(1)));
         return st;
+    }
+
+    @Override
+    public ST visitExprExecuteWithPipe(qlangParser.ExprExecuteWithPipeContext ctx) {
+        // TODO: Implement this
+        return null;
     }
 
     @Override
@@ -173,7 +179,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
     @Override
     public ST visitExprExecute(qlangParser.ExprExecuteContext ctx) {
         ST st = allTemplates.getInstanceOf("RunQuestion");
-        st.add("question", "_" + this.visit(ctx.expr()).render());
+        st.add("question", "_" + this.visit(ctx.expr().getLast()).render());
         return st;
     }
 
@@ -403,14 +409,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
         ST res = null;
         return visitChildren(ctx);
         // return res;
-    }
-
-    @Override
-    public ST visitCodeStat(qlangParser.CodeStatContext ctx) {
-        ST st = allTemplates.getInstanceOf("instantiate");
-        st.add("expr", "_" + ctx.Identifier().getText());
-        st.add("class", ctx.StringLiteral());
-        return st;
     }
 
     @Override
