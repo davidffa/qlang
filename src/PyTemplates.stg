@@ -5,16 +5,15 @@ stats(stat) ::= <<
 <if(stat)><stat; separator="\n"><endif>
 >>
 
-module(name,stat) ::= <<
+module(stat) ::= <<
 from classes import *
-class <name>:
-	def main():
-        result = Result()
+def main():
+    result = Result()
 
-		<stats(stat)>
-	
-	if __name__ == "__main__":
-		main()
+    <stats(stat)>
+
+if __name__ == "__main__":
+    main()
 >>
 
 block(stat) ::= <<
@@ -73,7 +72,7 @@ returnData(expr1) ::= <<
 <expr1>
 >>
 
-assign(var,expr) ::= "var <var> = <expr>"
+assign(var,expr) ::= "_<var> = <expr>"
 
 print(expr) ::= "print(<expr>, end='')"
 
@@ -188,14 +187,12 @@ Group("<name>", [<child; separator=",">])
 childQuestion(name, child) ::= <<
 Group("<name>", <child>)
 >>
-
 CreateQuestion(groupName, question, questionName) ::= <<
 <questionName> = <groupname>.getChildren(<question>)
 >>
 
-RunQuestion(question) ::= <<
-g = <question>.Answer().Grade()
-result.add_result(g)
+RunQuestion(question,gradeVar) ::= <<
+<question>.Answer()
 >>
 
 
@@ -425,5 +422,5 @@ GroupC_addChildren(instance, child) ::= <<
 >>
 
 GroupC_getChildren(instance, name) ::= <<
-<instance>.getChildren(<name>)
+<instance>.getChildren("<name>")
 >>
