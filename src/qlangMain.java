@@ -1,6 +1,8 @@
+import java.io.FileWriter;
 import java.io.IOException;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
+import org.stringtemplate.v4.ST;
 
 public class qlangMain {
     public static void main(String[] args) {
@@ -25,7 +27,11 @@ public class qlangMain {
                 sv.visit(tree);
 
                 Compiler visitor0 = new Compiler();
-                visitor0.visit(tree);
+                ST st = visitor0.visit(tree);
+
+                FileWriter fw = new FileWriter(args[1]);
+                fw.write(st.render());
+                fw.close();
             }
         }
         catch (SemanticException e) {
