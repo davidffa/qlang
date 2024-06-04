@@ -6,9 +6,7 @@ stats(stat) ::= <<
 >>
 
 module(name,stat) ::= <<
-import random
-from os import read
-
+from classes import *
 class <name>:
 	def main():
         result = Result()
@@ -24,7 +22,7 @@ block(stat) ::= <<
 >>
 
 HoleQuestion(print) ::= <<
-HoleQuestion([<print>])
+HoleQuestion([<if(print)><print separator=","><endif>])
 >>
 
 CodeNormal(text, hole) ::=<<
@@ -34,7 +32,7 @@ Code(<text>,[<if(hole)><hole; separator=","><endif>])
 
 
 
-holeQuestionStatement(printStat, hole) ::= <<
+printObject(printStat, hole) ::= <<
 Print([<if(printStat)><printStat; separator=","><endif>], [<if(hole)><hole; separator=","><endif>],True)
 >>
 
@@ -186,6 +184,9 @@ InstanciateGroup(varGroup, groupName, childGroups) ::= <<
 
 childGroup(name, child) ::= <<
 Group("<name>", [<child; separator=",">])
+>>
+childQuestion(name, child) ::= <<
+Group("<name>", <child>)
 >>
 
 CreateQuestion(groupName, question, questionName) ::= <<
