@@ -219,18 +219,21 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitHoleQuestionStatement(qlangParser.HoleQuestionStatementContext ctx) {
       ST st = allTemplates.getInstanceOf("holeQuestionStatement");
-      for (var printStat : ctx.printStat()) {
-         st.add("printStat", this.visit(printStat));
-      }
+      
+      st.add("printStat", this.visit(ctx.printStat()));
+      
       for (var hole : ctx.hole()) {
          st.add("hole", this.visit(hole));
       }
       return st;
+
    }
 
    @Override public ST visitHoleQuestionBlock(qlangParser.HoleQuestionBlockContext ctx) {
       ST st = allTemplates.getInstanceOf("HoleQuestion");
-      st.add("print", this.visit(ctx.holeQuestionStatement()));
+      for (var hole : ctx.holeQuestionStatement()) {
+         st.add("print", this.visit(hole));
+      }
       return st;
    }
 
@@ -357,7 +360,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
       ST st = allTemplates.getInstanceOf("CodeNormal");
       st.add("text", this.visit(ctx.StringLiteral()));
       st.add("text", this.visit(ctx.Identifier()));
-      st.add("text", this.visit(ctx.Integer()));
       for (var rule : ctx.gradeRule()) {
          st.add("hole", this.visit(rule));
       }
@@ -424,7 +426,10 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
    @Override public ST visitComposedStatement(qlangParser.ComposedStatementContext ctx) {
       ST st = allTemplates.getInstanceOf("returnData");
-      st.add("expr1", this.visit(ctx.visitChildren()));
+      st.add("expr1", this.visit(ctx.expr()));
+      st.add("expr1", this.visit(ctx.variableDeclaration()));
+      st.add("expr1", this.visit(ctx.assignment()));
+      st.add("expr1", this.visit(ctx.condStat()));
       return st;
    }
 

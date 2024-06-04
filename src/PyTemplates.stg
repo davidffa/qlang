@@ -118,7 +118,7 @@ ifExpr(relacionalExpr, expr, elif, else) ::= <<
 if <relacionalExpr>:
 	<expr>
 <elifs(elif)>
-<else>
+<elses(else)>
 >>
 
 elseExpr(expr) ::= <<
