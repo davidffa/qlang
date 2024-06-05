@@ -8,7 +8,6 @@ stats(stat) ::= <<
 module(stat) ::= <<
 from classes import *
 def main():
-    result = Result()
 
     <stats(stat)>
 
@@ -21,7 +20,7 @@ block(stat) ::= <<
 >>
 
 HoleQuestion(print) ::= <<
-HoleQuestion([<if(print)><print; separator=","><endif>])
+HoleQuestionClass([<if(print)><print; separator=","><endif>])
 >>
 
 CodeNormal(text, hole) ::=<<
@@ -85,20 +84,20 @@ choice(expr1, expr2) ::= <<
 instantiate(class, expr) ::= "<class>(<expr>)"
 
 CodeOpenQuestion(var1,var2) ::= <<
-CodeOpenQuestion([<var1>],<var2>)
+CodeOpenQuestionClass([<var1>],<var2>)
 >>
 
 CodeHoleQuestion(var1,var2) ::= <<
-CodeHoleQuestion([<var1>],<var2>)
+CodeHoleQuestionClass([<var1>],<var2>)
 >>
 
 MultiChoiceQuestion(var1,var2, var3) ::= <<
-MultiChoiceQuestion([<var1>],<var2>,[<var3>])
+MultiChoiceQuestionClass([<var1>],<var2>,[<var3>])
 >>
 
 
 ComposedQuestion(var1,var2) ::= <<
-ComposedQuestion([<var1>],[<var2>])
+ComposedQuestionClass([<var1>],[<var2>])
 >>
 
 input(expr) ::= "input(<expr>)"
@@ -178,17 +177,23 @@ Rule("<expr1>", <expr2; separator=",">)
 InstanciateGroup(varGroup, groupName, childGroups) ::= <<
 <varGroup> = Group("<groupName>", [<childGroups; separator=",">])
 >>
-
+InstanciateGroupUnique(varGroup, groupName, childGroups) ::= <<
+<varGroup> = Group("<groupName>", <childGroups; separator=",">)
+>>
 
 
 childGroup(name, child) ::= <<
 Group("<name>", [<child; separator=",">])
 >>
+OpenChildQuestion(name, child) ::= <<
+Group("<name>", OpenQuestionClass([<child; separator=",">]))
+>>
 childQuestion(name, child) ::= <<
 Group("<name>", <child>)
 >>
 CreateQuestion(groupName, question, questionName) ::= <<
-<questionName> = <groupname>.getChildren(<question>)
+<questionName> = <groupname>.getChild(<question>)
+result.addQuestion(<groupname>,<questionName>)
 >>
 
 RunQuestion(question,gradeVar) ::= <<
@@ -422,5 +427,5 @@ GroupC_addChildren(instance, child) ::= <<
 >>
 
 GroupC_getChildren(instance, name) ::= <<
-<instance>.getChildren("<name>")
+<instance>.getChild("<name>")
 >>

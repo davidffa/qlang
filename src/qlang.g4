@@ -38,7 +38,7 @@ expr:
 	| 'read' StringLiteral						#ExprRead
 	| '|' Identifier							#ExprLabel
 	| expr expr		    						#ExprConcat
-	| expr '|' 'execute' (expr ',')? expr		#ExprExecuteWithPipe
+	| expr '|' 'execute' expr		            #ExprExecuteWithPipe
 	| 'execute' (expr ',')? expr				#ExprExecute
 	| 'new' Identifier							#ExprNew
 	| '(' expr ')'								#ExprParen
