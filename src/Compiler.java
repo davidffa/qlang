@@ -467,7 +467,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
                 if (ctx.VerbatimString() != null) {
                     for (var vb: ctx.VerbatimString()) {
-                        question.add("text",vb.getText().substring(2,vb.get));
+                        String section = vb.getText();
+                        question.add("text",section.substring(2,section.length()-2));
                     }
                 }
                 if (ctx.expr() != null) {

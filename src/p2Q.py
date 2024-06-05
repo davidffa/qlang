@@ -17,7 +17,15 @@ def __main__():
        writeln "odd"
     end;
     -- PIL code to here"""
-    pil = Group("PIL",[Group("Example1",Code(text))])
+    pil = Group("PIL",[Group("Example1",Code("""-- PIL code from here
+    n := integer(read "Number: "); -- type conversion: type(expression)
+    write "Number ",n, " is ";
+    if n % 2 = 0 then -- = is the comparison operator (as in math)
+       writeln "even"
+    else
+       writeln "odd"
+    end;
+    -- PIL code to here"""))])
     c = pil.getChild("Example1")
     
     p = Print(["Complete o seguinte código."],[],True)
