@@ -51,7 +51,7 @@ class FractionInt :
         return str(round(self.__percent__(),2)) + "%"
 
     def __add__(self, other):
-        return FractionInt(self.num * other.den + other.num * self.den, self.den * other.den)
+        return FractionInt(self.num * other.den + other.num * self.den, self.den * other.den )
 
     def __sub__(self, other):
         return FractionInt(self.num * other.den - other.num * self.den, self.den * other.den)
@@ -78,28 +78,26 @@ class Result:
     num = 0
     result = FractionInt(0,1)
     question ={}
+    id= "Not available"
     def addQuestion(name,q):
-        Result.question[q] = {'name':name,'grade':None} ;
+        Result.question[q] = {'name':name,'grade':None}
         Result.num +=1
     def get_result():
         tempScore= FractionInt(0,1)
         for q ,value in Result.question.items():
-            if q.autoGrading:
-                v = q.Grade()
-                tempScore = tempScore.__add__(v)
-                Result.question[q]['grade'] = v
-            else:
-                Result.question[q]['grade'] = "Manual grading required"
-        result=tempScore.setDen(tempScore.den)
-        return result
+            v = q.Grade()
+            tempScore = tempScore.__add__(v)
+            Result.question[q]['grade'] = v#.setDen(v.den*(len(Result.question) +1))
+        Result.result=tempScore.setDen(tempScore.den )
     def export_file(name="result.txt"):
         Result.get_result()
         print("Exporting file...")
         with open(name, "w") as file:
-            file.write("User: "+Result.name + "; ID: " + str(Result.num) + "; Grade: " + str(Result.result.setDen(Result.result.den*len(Result.question))) + "\n")
+            file.write("User: "+Result.name + "; ID: " + Result.id + "; Grade: " + str(Result.result) + "\n")
             for q,value in Result.question.items():
                 file.write(value['name'] + ":" + str(value['grade']) + "\n")
         print(f"File exported successfully, {Result.name} got a grade of {Result.result}")
+
 class Question:
     def __init__(self):
         self.autoGrading = False
@@ -148,8 +146,10 @@ class HoleQuestionClass(Question):
                 self.score.setNum(sectionG.num)
                 self.score.setDen(sectionG.den*self.score.den)
                 continue
-            self.score = self.score.__add__(sectionG)
+            self.score = self.score.__add__(sectionG-self.score)
+        #self.score.setDen(self.score.den*(len(self.print)))
         Result.addQuestion(f"Question {Result.num} : ",self)
+
         return self.score
     def __str__(self):
         return "This is a hole question"
