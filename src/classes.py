@@ -140,14 +140,16 @@ class HoleQuestionClass(Question):
             p.Answer()
         return self
     def Grade(self):
+        self.score=FractionInt(0,1)
         for p in self.print:
             sectionG = p.Grade()
             if sectionG.num == 0 and self.score.num == 0:
                 self.score.setNum(sectionG.num)
                 self.score.setDen(sectionG.den*self.score.den)
                 continue
-            self.score = self.score.__add__(sectionG-self.score)
-        #self.score.setDen(self.score.den*(len(self.print)))
+            self.score = self.score.__add__(sectionG)
+        self.score.setDen(self.score.den*(len(self.print)))
+
         Result.addQuestion(f"Question {Result.num} : ",self)
 
         return self.score
@@ -207,6 +209,7 @@ class CodeHoleQuestionClass(Question):
         Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
+        self.score=FractionInt(0,1)
         g = self.code.Grade(self.rules)
         if isinstance(g, FractionInt) and g.num!=0 and g.den!=1:
             self.grade=g
@@ -284,6 +287,8 @@ class ComposedQuestionClass(Question):
         Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
+        self.overAllG = FractionInt(0, 1)
+
         indx=0
         for g,p in self.answered.items():
             print(self.grades[indx])
