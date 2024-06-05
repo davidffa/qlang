@@ -8,7 +8,7 @@ class Group:
         self.name = name
         self.children = children
     def addChildren(self, child):
-        if isinstance(self,Group):
+        if isinstance(self,Group) :
             self.children.append(child)
     def getChildrenQuestion(self,questions=set()):
         #questions is a set of Objects of type Questions
@@ -74,40 +74,32 @@ class FractionInt :
         # Fractions are immutable, so return self
         return FractionInt(self.num, self.den)
 class Result:
-    def __init__(self, name="result",id = 0) :
-        self.name = name
-        self.id = id
-        self.result = FractionInt(0,1)
-        self.question ={}
-    def setId(self,id):
-        self.id=id
-    def getId(self):
-        return self.id
-    def setName(self,name):
-        self.name=name
-    def getName(self):
-        return self.name
-    def addQuestion(self,name,question):
-        self.question[question] = {'name':name,'grade':None} ;
-    def get_result(self):
+    name = "result"
+    num = 0
+    result = FractionInt(0,1)
+    question ={}
+    def addQuestion(name,q):
+        Result.question[q] = {'name':name,'grade':None} ;
+        Result.num +=1
+    def get_result():
         tempScore= FractionInt(0,1)
-        for q ,value in self.question.items():
+        for q ,value in Result.question.items():
             if q.autoGrading:
                 v = q.Grade()
                 tempScore = tempScore.__add__(v)
-                self.question[q]['grade'] = v
+                Result.question[q]['grade'] = v
             else:
-                self.question[q]['grade'] = "Manual grading required"
-        self.result=tempScore.setDen(tempScore.den)
-        return self.result
-    def export_file(self, name="result.txt"):
-        self.get_result()
+                Result.question[q]['grade'] = "Manual grading required"
+        result=tempScore.setDen(tempScore.den)
+        return result
+    def export_file(name="result.txt"):
+        Result.get_result()
         print("Exporting file...")
         with open(name, "w") as file:
-            file.write("User: "+self.name + "; ID: " + str(self.id) + "; Grade: " + str(self.result.setDen(self.result.den*len(self.question))) + "\n")
-            for q,value in self.question.items():
+            file.write("User: "+Result.name + "; ID: " + str(Result.num) + "; Grade: " + str(Result.result.setDen(Result.result.den*len(Result.question))) + "\n")
+            for q,value in Result.question.items():
                 file.write(value['name'] + ":" + str(value['grade']) + "\n")
-        print(f"File exported successfully, {self.name} got a grade of {self.result}")
+        print(f"File exported successfully, {Result.name} got a grade of {Result.result}")
 class Question:
     def __init__(self):
         self.autoGrading = False
@@ -138,7 +130,7 @@ class Grading():
     def __str__(self):
         return str(self.TotalScore)
 
-class HoleQuestion(Question):
+class HoleQuestionClass(Question):
     def __init__(self,print):
         # name is the identifier of the question
         # print is the text of the question or the subparts of more then one question,
@@ -157,11 +149,12 @@ class HoleQuestion(Question):
                 self.score.setDen(sectionG.den*self.score.den)
                 continue
             self.score = self.score.__add__(sectionG)
+        Result.addQuestion(f"Question {Result.num} : ",self)
         return self.score
     def __str__(self):
         return "This is a hole question"
 
-class OpenQuestion(Question):
+class OpenQuestionClass(Question):
     def __init__(self,prints):
         super().__init__()
         self.prints = prints
@@ -175,7 +168,7 @@ class OpenQuestion(Question):
         return "this is a opene question"
 
 # Por completar:
-class CodeOpenQuestion(Question):
+class CodeOpenQuestionClass(Question):
     def __init__(self,print,code):
         super().__init__()
         self.print = print
@@ -189,7 +182,7 @@ class CodeOpenQuestion(Question):
         return self
     def __str__(self):
         return "this is a code-open question"
-class CodeHoleQuestion(Question):
+class CodeHoleQuestionClass(Question):
     def __init__(self,print,code,rules=None):
         # Pil can be either a  Pil object or the name of the file .pil
         # print is the text of the question or the subparts of more then one question
@@ -211,6 +204,7 @@ class CodeHoleQuestion(Question):
         else:
             self.code.printCode()
         self.code.Answer()
+        Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
         g = self.code.Grade(self.rules)
@@ -222,7 +216,7 @@ class CodeHoleQuestion(Question):
     def __str__(self):
         return "this is a code-hole question"
 
-class MultipleChoiceQuestion(Question):
+class MultipleChoiceQuestionClass(Question):
     def __init__(self,print,code,ops):
         # the print is list of Print objects
         # the ops is a list of choice objects each options is basically a value and that value can be the correct one based on the 
@@ -259,11 +253,12 @@ class MultipleChoiceQuestion(Question):
         self.answer = self.options[pos].getValue()
         resultCode= self.code.execute(self.input)
         self.correctAnswer= resultCode.lstrip().replace("\n"," ")
+        Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def __str__(self):
         return "This is a multiple choice question"
 
-class ComposedQuestion(Question):
+class ComposedQuestionClass(Question):
     def __init__(self,grades,groups):
         super().__init__()
         assert(len(grades) == len(groups))
@@ -286,6 +281,7 @@ class ComposedQuestion(Question):
                 randomQ.Answer()
                 self.answered[randomQ] = None
                 self.AllPossibleQuestions[indx].remove(randomQ)
+        Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
         indx=0
