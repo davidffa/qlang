@@ -57,6 +57,7 @@
 #### Linguagem Principal (QLang)
 
 - As perguntas do tipo code-open, como estão definidas nos exemplos são "automatic grading", ou seja, executaríamos ambos os códigos do import e a resposta do utilizador. No entanto, no caso de código que contenha "reads", levantou-se a pergunta de quem introduziria esses inputs (por exemplo, fazer vários test-cases definidos na gramática com pares input/output). Portanto nesse tipo de questões decidimos implementar como "manual grading"
+- Não existia qualquer exemplo de questões do tipo `code-output`, portanto definimos que as questões desse tipo teriam um import de código PIL e seriam de automatic grading. Assim, o código PIL do import vai ser mostrado ao utilizador e após a resposta do utilizador, o código do import irá ser executado e o output vai ser comparado com o que o utilizador escreveu, validando assim a sua resposta.
 
 #### Linguagem Secundária
 
