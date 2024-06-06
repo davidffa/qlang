@@ -40,7 +40,7 @@ CodeGetChildMulti(text, code) ::=<<
 >>
 
 CodeOuputQuestion(code,varName) ::=<<
-<varName> = CodeOutputClass(<code>)
+CodeOutputClass(<code>)
 >>
 
 
