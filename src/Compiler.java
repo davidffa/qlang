@@ -5,7 +5,7 @@ import org.stringtemplate.v4.*;
 public class Compiler extends qlangBaseVisitor<ST> {
     private STGroup allTemplates;
     private SymbolTable symbolTable;
-    private String programTemp;
+    private String programTemp="";
 
     public Compiler() {
         allTemplates = new STGroupFile("PyTemplates.stg");
@@ -475,12 +475,13 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitImportStat(qlangParser.ImportStatContext ctx) {
-        ST st = allTemplates.getInstanceOf("CodeNormal");
+        ST st = allTemplates.getInstanceOf("Code");
         if (ctx.StringLiteral() != null) {
             st.add("text", ctx.StringLiteral().getText());
         }
         if (ctx.Identifier() != null) {
-            st = allTemplates.getInstanceOf("CodeGetChild");
+            boolean p = ctx.getParent() instanceof qlangParser.MultiChoiceQuestionContext;
+            st = allTemplates.getInstanceOf(p ? "CodeGetChildMulti" :"CodeGetChild");
             String text = ctx.Identifier().getText().replace(".", "_");
             String[] code = text.split("_");
             for (int i = 1; i < code.length; i++) {
@@ -524,6 +525,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitCodeinline(qlangParser.CodeinlineContext ctx) {
+        symbolTable.declare(ctx.Identifier().getText(), Type.CODE);
         ST st = allTemplates.getInstanceOf("InstanciateGroup");
         String[] parts = ctx.Identifier().getText().split("\\.");
         if (parts.length == 1) {
@@ -672,27 +674,42 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitPrintStatBlock(qlangParser.PrintStatBlockContext ctx) {
-        ST st = allTemplates.getInstanceOf("printObject");
-
+        ST list = allTemplates.getInstanceOf("list");
         for (var stat : ctx.printStat()) {
+            ST p = allTemplates.getInstanceOf("printObject");
             String v =this.visit(stat).render();
             System.out.println(v);
-            st.add("printStat", v);
+            p.add("printStat", v);
+            p.add("hole", programTemp.equals("") ? "" : "Element(" + programTemp + ")");
+            list.add("stat", p.render());
         }
 
-        st.add("hole", programTemp.equals("") ? "" : "Element(" + programTemp + ")");
-        return st;
+        return list;
     }
 
     @Override
     public ST visitPrintStat(qlangParser.PrintStatContext ctx) {
         ST st = allTemplates.getInstanceOf("returnData");
         boolean ln = ctx.type.getText().equals("print");
-        st.add("expr1", this.visit(ctx.expr()));
+        if(ctx.expr() instanceof qlangParser.ExprIdentifierContext){
+            var id = (qlangParser.ExprIdentifierContext) ctx.expr();
+            Type type = symbolTable.lookup(id.Identifier().getText());
+            if(type == Type.CODE){
+                String text = id.Identifier().getText().replace(".", "_");
+                String[] code = text.split("_");
+                for (int i = 1; i < code.length; i++) {
+                    text = text + ".getChild(" + '"' + code[i] + '"' + ")";
+                }
+                st.add("expr1", text+".getCode()");
+                return st;
+            }
+        }
+
+        st.add("expr1", this.visit(ctx.expr()).render());
 
         if (ctx.getParent() instanceof qlangParser.StatContext) {
             st = allTemplates.getInstanceOf(ln ? "print" : "println");
-            st.add("expr", visit(ctx.expr()));
+            st.add("expr", visit(ctx.expr()).render());
         }
 
         return st;

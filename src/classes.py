@@ -29,7 +29,7 @@ class Group:
         for c in self.children:
             if isinstance(c,Group):
                 # print(c)
-                # print(c.name == name and (isinstance(c.children,Question) or isinstance(c.children,Code)))
+                print(c.name == name and (isinstance(c.children,Question) or isinstance(c.children,Code)))
                 if c.name == name  and (isinstance(c.children,Question) or isinstance(c.children,Code)):
                     return c.children
                 elif c.name == name:

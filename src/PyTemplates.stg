@@ -33,7 +33,10 @@ CodeNormal(text, hole) ::=<<
 Code(<text>),[<if(hole)><hole; separator=","><endif>]
 >>
 CodeGetChild(text, code, hole) ::=<<
-<text>.getChild(<code>),[<if(hole)><hole; separator=","><endif>]
+<text>,[<if(hole)><hole; separator=","><endif>]
+>>
+CodeGetChildMulti(text, code) ::=<<
+<text>
 >>
 
 
