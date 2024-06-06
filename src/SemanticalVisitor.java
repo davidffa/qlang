@@ -87,7 +87,7 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitExprExecuteWithPipe(qlangParser.ExprExecuteWithPipeContext ctx) {
-        Type lhs = visit(ctx.expr(0));
+        Type lhs = visit(ctx.expr());
         if (lhs != Type.TEXT)
             throw new SemanticException("Invalid execute with pipe arguments");
 
@@ -150,20 +150,20 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitExprExecute(qlangParser.ExprExecuteContext ctx) {
-        if (ctx.expr().size() > 1) {
-            Type grade = visit(ctx.expr(0));
+        if (ctx.expr() != null) {
+            Type grade = visit(ctx.expr());
 
             if (grade != Type.FRACTION && grade != Type.INTEGER) {
                 throw new SemanticException("Invalid execute grade");
             }
         }
 
-        Type rhs = visit(ctx.expr().getLast());
+        Type rhs = symbolTable.lookup(ctx.Identifier().getText());
 
         if (rhs == Type.QUESTION)
             return Type.FRACTION;
         else if (rhs == Type.CODE) {
-            if (ctx.expr().size() > 1)
+            if (ctx.expr() != null)
                 throw new SemanticException("Cannot put a grade in code execution!");
             return Type.TEXT;
         }

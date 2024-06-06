@@ -23,10 +23,16 @@ HoleQuestion(print) ::= <<
 HoleQuestionClass([<if(print)><print; separator=","><endif>])
 >>
 
-CodeNormal(text, hole) ::=<<
-Code(<text>,[<if(hole)><hole; separator=","><endif>])
+Code(text, hole) ::=<<
+Code(<text>, [<if(hole)><hole; separator=","><endif>])
 >>
 
+CodeNormal(text, hole) ::=<<
+Code(<text>),[<if(hole)><hole; separator=","><endif>]
+>>
+CodeGetChild(text, code, hole) ::=<<
+<text>,[<if(hole)><hole; separator=","><endif>]
+>>
 
 
 
@@ -71,9 +77,9 @@ returnData(expr1) ::= <<
 <expr1>
 >>
 
-assign(var,expr) ::= "_<var> = <expr>"
+assign(var,expr) ::= "<var> = <expr>"
 
-print(expr) ::= "print(<expr>, end='')"
+print(expr) ::= "print(<expr>,end='')"
 
 println(expr) ::= "print(<expr>)"
 
@@ -197,7 +203,7 @@ result.addQuestion(<groupname>,<questionName>)
 >>
 
 RunQuestion(question,gradeVar) ::= <<
-<question>.Answer()
+<question>.Answer().Grade()
 >>
 
 
