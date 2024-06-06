@@ -470,10 +470,29 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitCodeOutputQuestion(qlangParser.CodeOutputQuestionContext ctx) {
         symbolTable.declareQuestion(ctx.Identifier().getText());
 
-        ST st = allTemplates.getInstanceOf("CodeOuputQuestion");
-        st.add("varName", ctx.Identifier().getText().replace(".", "_"));
-        st.add("code", visit(ctx.importStat()).render());
-        System.out.println(st.render());
+        ST st = allTemplates.getInstanceOf("InstanciateGroup");
+        String[] parts = ctx.Identifier().getText().split("\\.");
+        st.add("varGroup", ctx.Identifier().getText().replace(".", "_"));
+        st.add("groupName", parts[0]);
+        ST[] childGroups = new ST[parts.length - 1];
+        for (int i = parts.length - 1; i > 0; i--) {
+            if (i == parts.length - 1) {
+                ST fin = allTemplates.getInstanceOf("childQuestion");
+                fin.add("name", parts[i]);
+                ST question = allTemplates.getInstanceOf("CodeOuputQuestion");
+                question.add("varName", ctx.Identifier().getText().replace(".", "_"));
+                question.add("code", visit(ctx.importStat()).render());
+                System.out.println(question.render());
+                fin.add("child", question);
+                childGroups[i - 1] = fin;
+            } else {
+                ST middle = allTemplates.getInstanceOf("childGroup");
+                middle.add("name", parts[i]);
+                middle.add("child", childGroups[i]);
+                childGroups[i - 1] = middle;
+            }
+        }
+        st.add("childGroups", childGroups[0]);
         return st;
     }
 
