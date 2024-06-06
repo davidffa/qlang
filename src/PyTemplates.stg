@@ -119,6 +119,19 @@ for <var> in <list>:
     <stats(stat)>
 >>
 
+while(expr, Ablock, Bblock) ::= <<
+hasIterated = False
+<Ablock>
+
+while <expr>:
+    if not hasIterated:
+        hasIterated = True
+    else:
+        <Ablock>
+
+    <Bblock>
+>>
+
 ifExpr(relacionalExpr, expr, expr2) ::= <<
 if <relacionalExpr>:
 	<expr>

@@ -701,8 +701,20 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitLoopStat(qlangParser.LoopStatContext ctx) {
-        return visitChildren(ctx);
-        // return res;
+        ST st = allTemplates.getInstanceOf("while");
+
+        String type = ctx.type.getText();
+
+        st.add("Ablock", visit(ctx.A));
+        st.add("Bblock", visit(ctx.B));
+
+        if (type.equals("while")) {
+            st.add("expr", visit(ctx.expr()).render());
+        } else if (type.equals("until")) {
+            st.add("expr", "not " + visit(ctx.expr()).render());
+        }
+
+        return st;
     }
 
     @Override
