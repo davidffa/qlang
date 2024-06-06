@@ -18,7 +18,9 @@ if __name__ == "__main__":
 block(stat) ::= <<
 <stats(stat)>
 >>
-
+list(stat) ::=<<
+<stat; separator=",">
+>>
 HoleQuestion(print) ::= <<
 HoleQuestionClass([<if(print)><print; separator=","><endif>])
 >>
@@ -31,7 +33,7 @@ CodeNormal(text, hole) ::=<<
 Code(<text>),[<if(hole)><hole; separator=","><endif>]
 >>
 CodeGetChild(text, code, hole) ::=<<
-<text>,[<if(hole)><hole; separator=","><endif>]
+<text>.getChild(<code>),[<if(hole)><hole; separator=","><endif>]
 >>
 
 
@@ -84,7 +86,7 @@ print(expr) ::= "print(<expr>,end='')"
 println(expr) ::= "print(<expr>)"
 
 choice(expr1, expr2) ::= <<
-(choice <expr1> <expr2>)
+Choice (<expr1> <expr2>)
 >>
 
 instantiate(class, expr) ::= "<class>(<expr>)"
@@ -98,7 +100,7 @@ CodeHoleQuestionClass([<var1>],<var2>)
 >>
 
 MultiChoiceQuestion(var1,var2, var3) ::= <<
-MultiChoiceQuestionClass([<var1>],<var2>,[<var3>])
+MultipleChoiceQuestionClass([<var1>],<var2>,[<var3>])
 >>
 
 
