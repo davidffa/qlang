@@ -158,7 +158,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitExprBinary(qlangParser.ExprBinaryContext ctx) {
         ST st = allTemplates.getInstanceOf("exprBinary");
         st.add("value1", this.visit(ctx.expr(0)));
-        st.add("op", ctx.op.getText());
+        String op = ctx.op.getText().replace(":", "/");
+        st.add("op", op);
         st.add("value2", this.visit(ctx.expr(1)));
         return st;
     }
@@ -182,7 +183,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitExprRel(qlangParser.ExprRelContext ctx) {
         ST st = allTemplates.getInstanceOf("relacionalExpr");
         st.add("var1", this.visit(ctx.expr(0)));
-        st.add("condition", ctx.op.getText());
+        st.add("condition", ctx.op.getText().replaceAll("^=$", "==").replaceAll("/=", "!="));
         st.add("var2", this.visit(ctx.expr(1)));
         return st;
     }
@@ -276,8 +277,8 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitExprInteger(qlangParser.ExprIntegerContext ctx) {
-        ST st = allTemplates.getInstanceOf("intConvert");
-        st.add("expr", this.visit(ctx));
+        ST st = allTemplates.getInstanceOf("returnData");
+        st.add("expr1", ctx.Integer().getText());
         return st;
     }
 
@@ -647,12 +648,16 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitCondStat(qlangParser.CondStatContext ctx) {
         ST st = allTemplates.getInstanceOf("ifExpr");
         st.add("relacionalExpr", this.visit(ctx.expr()));
-        st.add("expr", this.visit(ctx.block(0)));
+        st.add("expr", this.visit(ctx.ifBlock));
+
         for (var block : ctx.elseifBlock()) {
-            st.add("elif", this.visit(block));
+            st.add("expr2", this.visit(block).render());
         }
-        if (ctx.block().size() < 2) {
-            st.add("elseExpr", this.visit(ctx.block(1)));
+
+        if (ctx.elseBlock != null) {
+            ST elseST = allTemplates.getInstanceOf("elseExpr");
+            elseST.add("expr", this.visit(ctx.elseBlock).render());
+            st.add("expr2", elseST.render());
         }
         return st;
     }

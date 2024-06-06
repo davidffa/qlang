@@ -119,11 +119,10 @@ for <var> in <list>:
     <stats(stat)>
 >>
 
-ifExpr(relacionalExpr, expr, elif, else) ::= <<
+ifExpr(relacionalExpr, expr, expr2) ::= <<
 if <relacionalExpr>:
 	<expr>
-<elifs(elif)>
-<elseExpr(expr)>
+<if(expr2)><expr2; separator="\n"><endif>
 >>
 
 elseExpr(expr) ::= <<
@@ -140,11 +139,11 @@ orExpr(expr1, expr2) ::= <<
 >>
 
 xorExpr(expr1, expr2) ::= <<
-(<expr1> xor <expr2>)
+(<expr1> != <expr2>)
 >>
 
 impliesExpr(expr1, expr2) ::= <<
-(<expr1> implies <expr2>)
+(not <expr1> or <expr2>)
 >>
 
 
@@ -153,8 +152,8 @@ relacionalExpr(var1, condition, var2) ::=<<
 >>
 
 elifExpr(relacionalExpr, expr) ::= <<
-elif <relacionalExpr2>:
-	<expr1>
+elif <relacionalExpr>:
+	<expr>
 >>
 
 tryCatch(try_stat, except_stat) ::= <<

@@ -67,8 +67,14 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitExprConcat(qlangParser.ExprConcatContext ctx) {
-        visitChildren(ctx);
-        return Type.TEXT;
+        Type lhs = visit(ctx.expr(0));
+        Type rhs = visit(ctx.expr(1));
+
+        if (lhs != rhs) {
+            throw new SemanticException("Cannot concat the types " + lhs + " and " + rhs);
+        }
+
+        return lhs;
     }
 
     @Override
