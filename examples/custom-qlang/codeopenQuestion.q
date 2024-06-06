@@ -1,4 +1,5 @@
 q: question; 
+g: fraction;
 
 code-open Question.Code1 is
    uses code from "even-odd.pil" end;

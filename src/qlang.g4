@@ -75,8 +75,7 @@ multiChoiceQuestion:
 
 codeOutputQuestion:
 	'code-output' Identifier 'is' (
-		(printStatBlock importStat)
-		| (importStat printStatBlock)
+		importStat
 	) 'end';
 
 //Import
