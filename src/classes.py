@@ -189,6 +189,7 @@ class CodeOpenQuestionClass(Question):
         self.answer=input(f"Answer the question (PIL Code):\n")
         if self not in Result.question:
             Result.addQuestion(f"Question {Result.num} : ",self)
+            
 
         return self
     def __str__(self):
@@ -205,6 +206,7 @@ class CodeOutputClass(Question):
         self.correctAnswer = self.code.execute()
         if self not in Result.question:
             Result.addQuestion(f"Question {Result.num} : ",self)
+        return self
     def Grade(self):
         if self.answer == self.correctAnswer:
             return FractionInt(1,1)
