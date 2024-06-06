@@ -197,6 +197,7 @@ class CodeOpenQuestionClass(Question):
 class CodeOutputClass(Question):
     def __init__(self,code):
         super().__init__()
+        self.autoGrading = True
         self.answer=None
         self.correctAnswer=None
         self.code = code
