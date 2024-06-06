@@ -28,8 +28,6 @@ class Group:
             return self.children
         for c in self.children:
             if isinstance(c,Group):
-                # print(c)
-                print(c.name == name and (isinstance(c.children,Question) or isinstance(c.children,Code)))
                 if c.name == name  and (isinstance(c.children,Question) or isinstance(c.children,Code)):
                     return c.children
                 elif c.name == name:
@@ -202,7 +200,6 @@ class CodeOutputClass(Question):
         self.correctAnswer=None
         self.code = code
     def Answer(self):
-        print(self.code.getCode())
         self.answer=input(f"Guess the output(PIL Code):\n")
         self.correctAnswer = self.code.execute()
         if self not in Result.question:
@@ -324,9 +321,8 @@ class ComposedQuestionClass(Question):
 
         indx=0
         for g,p in self.answered.items():
-            print(self.grades[indx])
+
             qG = g.Grade()
-            print(qG)
             gradeQ=self.grades[indx].__prod__(qG)
             print(f"{g}, grade : {gradeQ}")
             self.answered[g] = gradeQ

@@ -482,7 +482,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
                 ST question = allTemplates.getInstanceOf("CodeOuputQuestion");
                 question.add("varName", ctx.Identifier().getText().replace(".", "_"));
                 question.add("code", visit(ctx.importStat()).render());
-                System.out.println(question.render());
                 fin.add("child", question);
                 childGroups[i - 1] = fin;
             } else {
@@ -607,25 +606,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitComposed(qlangParser.ComposedContext ctx) {
-        ST st = allTemplates.getInstanceOf("InstanciateGroup");
-        String[] parts = ctx.Identifier().getText().split("\\.");
-        st.add("varGroup", ctx.Identifier().getText().replace(".", "_"));
-        st.add("groupName", parts[0]);
-        ST[] childGroups = new ST[parts.length - 1];
-        for (int i = parts.length - 1; i > 0; i--) {
-            if (i == parts.length - 1) {
-                ST fin = allTemplates.getInstanceOf("childGroup");
-                fin.add("name", parts[i]);
-                fin.add("child", this.visit(ctx.composedBlock()));
-                childGroups[i - 1] = fin;
-            } else {
-                ST middle = allTemplates.getInstanceOf("childGroup");
-                middle.add("name", parts[i]);
-                middle.add("child", childGroups[i]);
-                childGroups[i - 1] = middle;
-            }
-        }
-        st.add("childGroups", childGroups[0]);
+        ST st = allTemplates.getInstanceOf("returnData");
         return st;
     }
 
@@ -701,7 +682,6 @@ public class Compiler extends qlangBaseVisitor<ST> {
         for (var stat : ctx.printStat()) {
             ST p = allTemplates.getInstanceOf("printObject");
             String v = this.visit(stat).render();
-            System.out.println(v);
             p.add("printStat", v);
             p.add("hole", programTemp.equals("") ? "" : "Element(" + programTemp + ")");
             list.add("stat", p.render());
@@ -726,6 +706,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
                 st.add("expr1", text + ".getCode()");
                 return st;
             }
+            
         }
 
         st.add("expr1", this.visit(ctx.expr()).render());
