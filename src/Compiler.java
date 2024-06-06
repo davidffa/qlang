@@ -5,7 +5,7 @@ import org.stringtemplate.v4.*;
 public class Compiler extends qlangBaseVisitor<ST> {
     private STGroup allTemplates;
     private SymbolTable symbolTable;
-    private String programTemp="";
+    private String programTemp = "";
 
     public Compiler() {
         allTemplates = new STGroupFile("PyTemplates.stg");
@@ -468,9 +468,13 @@ public class Compiler extends qlangBaseVisitor<ST> {
 
     @Override
     public ST visitCodeOutputQuestion(qlangParser.CodeOutputQuestionContext ctx) {
-        ST res = null;
-        return visitChildren(ctx);
-        // return res;
+        symbolTable.declareQuestion(ctx.Identifier().getText());
+
+        ST st = allTemplates.getInstanceOf("CodeOuputQuestion");
+        st.add("varName", ctx.Identifier().getText().replace(".", "_"));
+        st.add("code", visit(ctx.importStat()).render());
+        System.out.println(st.render());
+        return st;
     }
 
     @Override
@@ -481,7 +485,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
         }
         if (ctx.Identifier() != null) {
             boolean p = ctx.getParent() instanceof qlangParser.MultiChoiceQuestionContext;
-            st = allTemplates.getInstanceOf(p ? "CodeGetChildMulti" :"CodeGetChild");
+            st = allTemplates.getInstanceOf(p ? "CodeGetChildMulti" : "CodeGetChild");
             String text = ctx.Identifier().getText().replace(".", "_");
             String[] code = text.split("_");
             for (int i = 1; i < code.length; i++) {
@@ -677,7 +681,7 @@ public class Compiler extends qlangBaseVisitor<ST> {
         ST list = allTemplates.getInstanceOf("list");
         for (var stat : ctx.printStat()) {
             ST p = allTemplates.getInstanceOf("printObject");
-            String v =this.visit(stat).render();
+            String v = this.visit(stat).render();
             System.out.println(v);
             p.add("printStat", v);
             p.add("hole", programTemp.equals("") ? "" : "Element(" + programTemp + ")");
@@ -691,16 +695,16 @@ public class Compiler extends qlangBaseVisitor<ST> {
     public ST visitPrintStat(qlangParser.PrintStatContext ctx) {
         ST st = allTemplates.getInstanceOf("returnData");
         boolean ln = ctx.type.getText().equals("print");
-        if(ctx.expr() instanceof qlangParser.ExprIdentifierContext){
+        if (ctx.expr() instanceof qlangParser.ExprIdentifierContext) {
             var id = (qlangParser.ExprIdentifierContext) ctx.expr();
             Type type = symbolTable.lookup(id.Identifier().getText());
-            if(type == Type.CODE){
+            if (type == Type.CODE) {
                 String text = id.Identifier().getText().replace(".", "_");
                 String[] code = text.split("_");
                 for (int i = 1; i < code.length; i++) {
                     text = text + ".getChild(" + '"' + code[i] + '"' + ")";
                 }
-                st.add("expr1", text+".getCode()");
+                st.add("expr1", text + ".getCode()");
                 return st;
             }
         }

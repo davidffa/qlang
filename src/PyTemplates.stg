@@ -39,6 +39,10 @@ CodeGetChildMulti(text, code) ::=<<
 <text>
 >>
 
+CodeOuputQuestion(code,varName) ::=<<
+<varName> = CodeOutputClass(<code>)
+>>
+
 
 
 printObject(printStat, hole) ::= <<

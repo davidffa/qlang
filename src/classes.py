@@ -193,6 +193,24 @@ class CodeOpenQuestionClass(Question):
         return self
     def __str__(self):
         return "this is a code-open question"
+class CodeOutputClass(Question):
+    def __init__(self,code):
+        super().__init__()
+        self.answer=None
+        self.correctAnswer=None
+        self.code = code
+    def Answer(self):
+        print(self.code.getCode())
+        self.answer=input(f"Guess the output(PIL Code):\n")
+        self.correctAnswer = self.code.execute()
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
+    def Grade(self):
+        if self.answer == self.correctAnswer:
+            return FractionInt(1,1)
+        return FractionInt(0,1)
+    def __str__(self):
+        return "this is a code-ouput question"
 class CodeHoleQuestionClass(Question):
     def __init__(self,print,code,rules=None):
         # Pil can be either a  Pil object or the name of the file .pil
