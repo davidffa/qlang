@@ -43,7 +43,10 @@
 - [x] Instrução iterativa (operando sobre expressões booleanas).
 - [x] Perguntas dos tipos: multi−choice e code−output.
 - [x] A definição de buracos em código definido em linha.
-- [x] Definição de pergunta composta (que pode incluir a execução de uma ou mais perguntas).
+- [ ] Definição de pergunta composta (que pode incluir a execução de uma ou mais perguntas).
+    - [x] A gramática aceita composed questions
+    - [x] O código de suporte (classes em python) suporta parcialmente composed questions (apenas a Q1 do p3.q)
+    - A geração de código para composed questions não foi feito, devido à falta de tempo
 
 ### Características Avançadas
 
