@@ -80,14 +80,15 @@ class Result:
     question ={}
     id= "Not available"
     def addQuestion(name,q):
-        Result.question[q] = {'name':name,'grade':None}
         Result.num +=1
+        Result.question[q] = {'name':name,'grade':None}
     def get_result():
         tempScore= FractionInt(0,1)
-        for q ,value in Result.question.items():
-            v = q.Grade()
-            tempScore = tempScore.__add__(v)
-            Result.question[q]['grade'] = v#.setDen(v.den*(len(Result.question) +1))
+        for q  in Result.question.keys():
+            if q.autoGrading:
+                v = q.Grade()
+                tempScore = tempScore.__add__(v)
+                Result.question[q]['grade'] = v#.setDen(v.den*(len(Result.question) +1))
         Result.result=tempScore.setDen(tempScore.den )
     def export_file(name="result.txt"):
         Result.get_result()
@@ -95,7 +96,10 @@ class Result:
         with open(name, "w") as file:
             file.write("User: "+Result.name + "; ID: " + Result.id + "; Grade: " + str(Result.result) + "\n")
             for q,value in Result.question.items():
-                file.write(value['name'] + ":" + str(value['grade']) + "\n")
+                if q.autoGrading:
+                    file.write(value['name'] + ":" + str(value['grade']) + "\n")
+                else:
+                    file.write(value['name'] + ":" + q.answer + "\n")
         print(f"File exported successfully, {Result.name} got a grade of {Result.result}")
 
 class Question:
@@ -149,8 +153,8 @@ class HoleQuestionClass(Question):
                 continue
             self.score = self.score.__add__(sectionG)
         self.score.setDen(self.score.den*(len(self.print)))
-
-        Result.addQuestion(f"Question {Result.num} : ",self)
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
 
         return self.score
     def __str__(self):
@@ -165,6 +169,8 @@ class OpenQuestionClass(Question):
         for p in self.prints:
             p.Answer()
         self.answer=input(f"Answer here:")
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def __str__(self):
         return "this is a opene question"
@@ -181,6 +187,9 @@ class CodeOpenQuestionClass(Question):
             p.Answer()
         print(self.code.execute())
         self.answer=input(f"Answer the question (PIL Code):\n")
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
+
         return self
     def __str__(self):
         return "this is a code-open question"
@@ -206,7 +215,8 @@ class CodeHoleQuestionClass(Question):
         else:
             self.code.printCode()
         self.code.Answer()
-        Result.addQuestion(f"Question {Result.num} : ",self)
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
         self.score=FractionInt(0,1)
@@ -256,7 +266,8 @@ class MultipleChoiceQuestionClass(Question):
         self.answer = self.options[pos].getValue()
         resultCode= self.code.execute(self.input)
         self.correctAnswer= resultCode.lstrip().replace("\n"," ")
-        Result.addQuestion(f"Question {Result.num} : ",self)
+        if self not in Result.question:
+            Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def __str__(self):
         return "This is a multiple choice question"
@@ -284,7 +295,8 @@ class ComposedQuestionClass(Question):
                 randomQ.Answer()
                 self.answered[randomQ] = None
                 self.AllPossibleQuestions[indx].remove(randomQ)
-        Result.addQuestion(f"Question {Result.num} : ",self)
+        if self not in Result.question:        
+            Result.addQuestion(f"Question {Result.num} : ",self)
         return self
     def Grade(self):
         self.overAllG = FractionInt(0, 1)
