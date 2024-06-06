@@ -245,6 +245,7 @@ public class SemanticalVisitor extends qlangBaseVisitor<Type> {
 
     @Override
     public Type visitCodeOutputQuestion(qlangParser.CodeOutputQuestionContext ctx) {
+        symbolTable.declareQuestion(ctx.Identifier().getText());
         return visitChildren(ctx);
     }
 
